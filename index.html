@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Etiqueta Nutricional Pro - Doceira Gourmet</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root { --primary: #db2777; --bg: #fdf2f8; --border: #f9a8d4; }
+        body{ font-family: 'Inter', sans-serif; background: var(--bg); margin:0; padding:20px; color: #334155; }
+        .app{ display:grid; grid-template-columns: 420px 1fr; gap:30px; max-width:1400px; margin:auto; }
+        
+        .panel { background:#fff; border-radius:15px; padding:20px; box-shadow:0 4px 15px rgba(219, 39, 119, 0.1); margin-bottom: 20px; border: 1px solid var(--border); }
+        .panel h2 { font-size:14px; text-transform:uppercase; border-bottom: 2px solid var(--bg); padding-bottom: 8px; margin-top: 0; color: var(--primary); }
+        
+        label { font-size:11px; font-weight: 700; margin-top: 10px; display: block; color: #64748b; text-transform: uppercase; }
+        input, select { width:100%; padding:8px; font-size:13px; border:1px solid var(--border); border-radius:8px; box-sizing: border-box; margin-top: 4px; }
+        
+        .check-group { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; font-weight: bold; color: #475569; }
+        .check-group input { width: auto; margin: 0; cursor: pointer; }
+
+        .grid-new-item { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: #fff1f2; padding: 12px; border-radius: 10px; margin-top: 10px; }
+        .full-width { grid-column: span 3; }
+        .btn-save-item { grid-column: span 3; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 5px; }
+
+        .ingrediente-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .ingrediente-row select { flex: 2; }
+        .ingrediente-row input { flex: 1; }
+        .btn-remove { background: #ffe4e6; color: #e11d48; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; margin-top: 4px; }
+        .btn-add { background: #be185d; color: #fff; width: 100%; margin: 15px 0; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
+
+        .buttons-export { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top: 15px; }
+        .btn-exp { border: none; padding: 12px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 11px; }
+
+        .preview { position: sticky; top: 20px; display: flex; justify-content: center; background: #fff; border-radius: 20px; padding: 40px; border: 2px dashed var(--border); }
+        #etiqueta { background: #fff; border: 1px solid #000; padding: 10px; box-sizing: border-box; font-family: Arial, sans-serif; display: flex; flex-direction: column; }
+        
+        .empresa-v { text-align: center; font-size: 9px; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom: 4px; }
+        .nome-v { font-size: 12px; font-weight: bold; text-align: center; text-transform: uppercase; margin: 4px 0; }
+        .info-tit { text-align: center; font-weight: bold; font-size: 9px; border-top: 1px solid #000; padding-top: 2px; }
+        .porcao-v { font-size: 8px; text-align: center; margin-bottom: 5px; }
+        
+        .tabela { border: 1px solid #000; width: 100%; border-collapse: collapse; font-size: 7.5px; }
+        .tabela td { border: 1px solid #000; padding: 2px 4px; text-align: right; }
+        .tabela td:first-child { text-align: left; }
+        .bold { font-weight: bold; }
+
+        .ing-lista { font-size: 7px; margin-top: 8px; line-height: 1.2; text-align: justify; }
+        .selo-alerta { border: 1px solid #000; text-align: center; font-weight: bold; margin-top: 5px; padding: 3px; font-size: 8px; }
+        
+        .datas-box { 
+            display: flex; justify-content: space-between; flex-wrap: wrap; 
+            font-size: 6.8px; margin-top: 12px; font-weight: bold; 
+            border-top: 1px dashed #000; padding: 8px 8px 4px 8px; gap: 5px; width: 100%; box-sizing: border-box;
+        }
+
+        .obs-legal { font-size: 5.5px; text-align: center; margin-top: 5px; width: 100%; }
+        .disclaimer { font-size: 10px; color: #94a3b8; text-align: center; margin-top: 15px; font-style: italic; }
+        .oculto { display: none !important; }
+
+        @media print { .sidebar, .panel, .disclaimer { display: none; } body { background: white; padding: 0; } .preview { border: none; padding: 0; } }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="sidebar">
+        <div class="panel">
+            <h2>Identificação</h2>
+            <label>Sua Marca / Empresa</label>
+            <input id="empresa_nome" value="Doceria Gourmet Premium" oninput="atualizar()">
+            <label>Nome do Doce</label>
+            <input id="prod_nome" value="Brigadeiro de Pistache" oninput="atualizar()">
+        </div>
+
+        <div class="panel">
+            <h2>+ Novo Insumo (Base 100g)</h2>
+            <div class="grid-new-item">
+                <div class="full-width">
+                    <label>Nome do Ingrediente</label>
+                    <input id="new_nome" placeholder="Ex: Pasta de Avelã">
+                </div>
+                <div><label>Kcal</label><input type="number" id="new_kcal"></div>
+                <div><label>Carbo</label><input type="number" id="new_carbo"></div>
+                <div><label>Prot</label><input type="number" id="new_prot"></div>
+                <div><label>Gord</label><input type="number" id="new_gord"></div>
+                <div><label>Sódio(mg)</label><input type="number" id="new_sodio"></div>
+                <div><label>Sal(g)</label><input type="number" placeholder="Conv Sal" oninput="document.getElementById('new_sodio').value = Math.round(this.value * 400)"></div>
+                <div class="full-width"><label>Açúcar Adicionado (g)</label><input type="number" id="new_acucar"></div>
+                <button class="btn-save-item" onclick="cadastrarInsumo()">SALVAR NO COMPUTADOR</button>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button onclick="exportarBanco()" style="flex:1; font-size:10px; padding:5px; cursor:pointer; border-radius:5px; border:1px solid var(--border);">Backup Insumos</button>
+                <button onclick="importarBanco()" style="flex:1; font-size:10px; padding:5px; cursor:pointer; border-radius:5px; border:1px solid var(--border);">Restaurar Backup</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Receita e Rendimento</h2>
+            <div id="lista_ingredientes"></div>
+            <button class="btn-add" onclick="addLinhaIngrediente()">+ Adicionar Ingrediente</button>
+
+            <label>Peso Final da Receita Pronta (g)</label>
+            <input id="peso_rendimento" type="number" value="1000" oninput="atualizar()">
+
+            <div style="display: flex; gap: 8px;">
+                <div style="flex:1"><label>Largura (cm)</label><input id="largura" type="number" value="7" oninput="atualizar()"></div>
+                <div style="flex:1"><label>Altura (cm)</label><input id="altura" type="number" value="10" oninput="atualizar()"></div>
+            </div>
+
+            <label>Peso da Porção no Rótulo (g)</label>
+            <input id="peso_porcao" type="number" value="100" oninput="atualizar()">
+
+            <label>Glúten / Lactose</label>
+            <select id="sel_alerta" onchange="atualizar()">
+                <optgroup label="Combos">
+                    <option value="CONTÉM GLÚTEN. CONTÉM LACTOSE.">Contém Glúten e Lactose</option>
+                    <option value="CONTÉM GLÚTEN. NÃO CONTÉM LACTOSE.">Contém Glúten / Sem Lactose</option>
+                    <option value="NÃO CONTÉM GLÚTEN. CONTÉM LACTOSE.">Sem Glúten / Contém Lactose</option>
+                    <option value="NÃO CONTÉM GLÚTEN. NÃO CONTÉM LACTOSE.">Sem Glúten e Sem Lactose</option>
+                </optgroup>
+                <optgroup label="Somente Glúten">
+                    <option value="CONTÉM GLÚTEN.">Contém Glúten</option>
+                    <option value="NÃO CONTÉM GLÚTEN.">Não contém Glúten</option>
+                    <option value="PODE CONTER TRAÇOS DE GLÚTEN.">Pode conter traços de Glúten</option>
+                </optgroup>
+                <optgroup label="Somente Lactose">
+                    <option value="CONTÉM LACTOSE.">Contém Lactose</option>
+                    <option value="NÃO CONTÉM LACTOSE.">Não contém Lactose</option>
+                </optgroup>
+                <option value="">Nenhuma Informação</option>
+            </select>
+            
+            <div class="check-group">
+                <input type="checkbox" id="chk_data" checked onchange="atualizar()"> 
+                <label style="cursor:pointer;" for="chk_data">EXIBIR VALIDADE E LOTE</label>
+            </div>
+
+            <div id="painel_datas">
+                <div style="display: flex; gap: 8px;">
+                    <div style="flex:1"><label>Validade</label><input id="validade" value="15/05/2026" oninput="atualizar()"></div>
+                    <div style="flex:1"><label>Lote</label><input id="lote" value="2024-01" oninput="atualizar()"></div>
+                </div>
+            </div>
+
+            <div class="buttons-export">
+                <button class="btn-exp" style="background:#000" onclick="window.print()">PRINT</button>
+                <button class="btn-exp" style="background:#dc2626;" onclick="exportPDF()">GERAR PDF</button>
+                <button class="btn-exp" style="background:#2563eb;" onclick="exportJPG()">GERAR JPG</button>
+            </div>
+        </div>
+        <p class="disclaimer">Os valores nutricionais são estimativas baseadas em tabelas de referência. Valide sempre com os dados dos seus insumos reais.</p>
+    </div>
+
+    <div class="preview">
+        <div id="etiqueta">
+            <div class="empresa-v" id="v_empresa"></div>
+            <div class="nome-v" id="v_nome"></div>
+            <div class="info-tit">INFORMAÇÃO NUTRICIONAL</div>
+            <div class="porcao-v" id="v_porcao_txt"></div>
+
+            <table class="tabela">
+                <tr class="bold"><td>Constituintes</td><td>100g</td><td>Porção</td><td>%VD*</td></tr>
+                <tr><td>V. Energético (kcal)</td><td id="v100_kcal"></td><td id="vp_kcal"></td><td id="vd_kcal"></td></tr>
+                <tr><td>Carboidratos (g)</td><td id="v100_carbo"></td><td id="vp_carbo"></td><td id="vd_carbo"></td></tr>
+                <tr><td>Açúcares adic. (g)</td><td id="v100_acucar"></td><td id="vp_acucar"></td><td id="vd_acucar"></td></tr>
+                <tr><td>Proteínas (g)</td><td id="v100_prot"></td><td id="vp_prot"></td><td id="vd_prot"></td></tr>
+                <tr><td>Gorduras totais (g)</td><td id="v100_gord"></td><td id="vp_gord"></td><td id="vd_gord"></td></tr>
+                <tr><td>Sódio (mg)</td><td id="v100_sodio"></td><td id="vp_sodio"></td><td id="vd_sodio"></td></tr>
+            </table>
+
+            <div class="ing-lista"><strong>INGREDIENTES:</strong> <span id="v_ing_lista"></span></div>
+            <div class="selo-alerta" id="v_alerta"></div>
+            
+            <div class="datas-box" id="v_datas_box">
+                <div style="white-space: nowrap;">VAL: <span id="v_val"></span></div>
+                <div style="white-space: nowrap;">LOTE: <span id="v_lote"></span></div>
+            </div>
+
+            <div class="obs-legal">* % Valores Diários base em dieta de 2.000 kcal.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const DB_PADRAO = {
+    "leite_cond": { nome: "Leite Condensado", kcal: 322, carbo: 54, prot: 7.2, gord: 8.5, sodio: 100, acucar: 54 },
+    "creme_leite_cx": { nome: "Creme de Leite Cx", kcal: 163, carbo: 4.5, prot: 2.1, gord: 15, sodio: 50, acucar: 0 },
+    "leite_integral": { nome: "Leite de Caixinha Integral", kcal: 60, carbo: 4.7, prot: 3.2, gord: 3.2, sodio: 45, acucar: 0 },
+    "leite_desnatado": { nome: "Leite de Caixinha Desnatado", kcal: 35, carbo: 4.7, prot: 3.3, gord: 0, sodio: 50, acucar: 0 },
+    "leite_semi": { nome: "Leite Semidesnatado", kcal: 45, carbo: 4.7, prot: 3.3, gord: 1.5, sodio: 50, acucar: 0 },
+    "leite_ninho": { nome: "Leite em Pó (Ninho)", kcal: 496, carbo: 38, prot: 26, gord: 27, sodio: 370, acucar: 0 },
+    "manteiga_sem_sal": { nome: "Manteiga s/ Sal", kcal: 717, carbo: 0.1, prot: 0.8, gord: 81, sodio: 11, acucar: 0 },
+    "chocolate_ao_leite": { nome: "Chocolate ao Leite", kcal: 540, carbo: 58, prot: 5.5, gord: 31, sodio: 80, acucar: 50 },
+    "chocolate_meio_amargo": { nome: "Chocolate Meio Amargo", kcal: 470, carbo: 50, prot: 4, gord: 28, sodio: 10, acucar: 40 },
+    "cacau_po_100": { nome: "Cacau em Pó 100%", kcal: 230, carbo: 50, prot: 20, gord: 14, sodio: 20, acucar: 0 },
+    "acucar_refinado": { nome: "Açúcar Refinado", kcal: 387, carbo: 100, prot: 0, gord: 0, sodio: 0, acucar: 100 },
+    "farinha_trigo": { nome: "Farinha de Trigo", kcal: 360, carbo: 75, prot: 10, gord: 1, sodio: 0, acucar: 0 },
+    "farinha_amendoas": { nome: "Farinha de Amêndoas", kcal: 580, carbo: 20, prot: 21, gord: 50, sodio: 0, acucar: 0 },
+    "ovo_inteiro": { nome: "Ovo Inteiro", kcal: 143, carbo: 1, prot: 13, gord: 9, sodio: 124, acucar: 0 },
+    "nutella": { nome: "Nutella", kcal: 533, carbo: 57, prot: 6, gord: 31, sodio: 42, acucar: 56 },
+    "doce_leite": { nome: "Doce de Leite", kcal: 315, carbo: 55, prot: 6, gord: 7, sodio: 120, acucar: 50 },
+    "creme_pistache": { nome: "Creme de Pistache", kcal: 580, carbo: 40, prot: 10, gord: 42, sodio: 15, acucar: 35 },
+    "sal": { nome: "Sal", kcal: 0, carbo: 0, prot: 0, gord: 0, sodio: 38758, acucar: 0 }
+};
+
+const ALERGENICOS = ["LEITE", "OVO", "TRIGO", "AMENDOIM", "AMÊNDOA", "AVELÃ", "PISTACHE", "SOJA", "CASTANHA"];
+
+let DB_CUSTOM = JSON.parse(localStorage.getItem('meus_insumos_final_v1')) || {};
+let DB = { ...DB_PADRAO, ...DB_CUSTOM };
+
+function cadastrarInsumo() {
+    const nome = document.getElementById('new_nome').value;
+    if(!nome) return alert("Digite o nome");
+    const id = "c_" + Date.now();
+    DB_CUSTOM[id] = {
+        nome: nome,
+        kcal: parseFloat(document.getElementById('new_kcal').value) || 0,
+        carbo: parseFloat(document.getElementById('new_carbo').value) || 0,
+        prot: parseFloat(document.getElementById('new_prot').value) || 0,
+        gord: parseFloat(document.getElementById('new_gord').value) || 0,
+        sodio: parseFloat(document.getElementById('new_sodio').value) || 0,
+        acucar: parseFloat(document.getElementById('new_acucar').value) || 0
+    };
+    localStorage.setItem('meus_insumos_final_v1', JSON.stringify(DB_CUSTOM));
+    alert("Ingrediente salvo!");
+    location.reload();
+}
+
+function exportarBanco() {
+    const data = JSON.stringify(DB_CUSTOM);
+    const blob = new Blob([data], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'backup-insumos.json';
+    a.click();
+}
+
+function importarBanco() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = readerEvent => {
+            const content = readerEvent.target.result;
+            localStorage.setItem('meus_insumos_final_v1', content);
+            location.reload();
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function addLinhaIngrediente() {
+    const container = document.getElementById('lista_ingredientes');
+    const div = document.createElement('div');
+    div.className = 'ingrediente-row';
+    let options = '<option value="">Selecione...</option>';
+    Object.keys(DB).sort((a,b) => DB[a].nome.localeCompare(DB[b].nome)).forEach(key => {
+        options += `<option value="${key}">${DB[key].nome}</option>`;
+    });
+    div.innerHTML = `<select onchange="atualizar()">${options}</select><input type="number" placeholder="g" oninput="atualizar()"><button class="btn-remove" onclick="this.parentElement.remove(); atualizar();">✕</button>`;
+    container.appendChild(div);
+}
+
+function atualizar() {
+    let somas = { kcal: 0, carbo: 0, prot: 0, gord: 0, sodio: 0, acucar: 0, pesoOriginal: 0 };
+    let itensParaLista = [];
+
+    document.querySelectorAll('.ingrediente-row').forEach(row => {
+        const id = row.querySelector('select').value;
+        const qtd = parseFloat(row.querySelector('input').value) || 0;
+        if (id && qtd > 0) {
+            const i = DB[id];
+            somas.kcal += (i.kcal/100)*qtd;
+            somas.carbo += (i.carbo/100)*qtd;
+            somas.prot += (i.prot/100)*qtd;
+            somas.gord += (i.gord/100)*qtd;
+            somas.sodio += (i.sodio/100)*qtd;
+            somas.acucar += (i.acucar/100)*qtd;
+            itensParaLista.push({ nome: i.nome, peso: qtd });
+        }
+    });
+
+    const rendimentoFinal = parseFloat(document.getElementById('peso_rendimento').value) || 1;
+    const pesoPorcaoRotulo = parseFloat(document.getElementById('peso_porcao').value) || 100;
+    const f100g = 100 / rendimentoFinal;
+    const fPorcao = pesoPorcaoRotulo / rendimentoFinal;
+    const vds = { kcal: 2000, carbo: 300, acucar: 50, prot: 75, gord: 55, sodio: 2000 };
+
+    ['kcal', 'carbo', 'acucar', 'prot', 'gord', 'sodio'].forEach(c => {
+        const val100 = somas[c] * f100g;
+        const valP = somas[c] * fPorcao;
+        document.getElementById(`v100_${c}`).innerText = val100.toFixed(c === 'sodio' || c === 'kcal' ? 0 : 1);
+        document.getElementById(`vp_${c}`).innerText = valP.toFixed(c === 'sodio' || c === 'kcal' ? 0 : 1);
+        document.getElementById(`vd_${c}`).innerText = Math.round((valP / vds[c]) * 100) + "%";
+    });
+
+    itensParaLista.sort((a, b) => b.peso - a.peso);
+    document.getElementById('v_ing_lista').innerHTML = itensParaLista.map(it => {
+        let n = it.nome.toLowerCase();
+        ALERGENICOS.forEach(al => { if (n.includes(al.toLowerCase())) n = `<strong>${n.toUpperCase()}</strong>`; });
+        return n;
+    }).join(", ");
+
+    document.getElementById('v_empresa').innerText = document.getElementById('empresa_nome').value;
+    document.getElementById('v_nome').innerText = document.getElementById('prod_nome').value;
+    document.getElementById('v_porcao_txt').innerText = `Porção: ${pesoPorcaoRotulo}g`;
+    
+    const alerta = document.getElementById('sel_alerta').value;
+    document.getElementById('v_alerta').innerText = alerta;
+    document.getElementById('v_alerta').classList.toggle('oculto', !alerta);
+
+    const exibirDatas = document.getElementById('chk_data').checked;
+    document.getElementById('painel_datas').classList.toggle('oculto', !exibirDatas);
+    document.getElementById('v_datas_box').classList.toggle('oculto', !exibirDatas);
+
+    if(exibirDatas) {
+        document.getElementById('v_val').innerText = document.getElementById('validade').value;
+        document.getElementById('v_lote').innerText = document.getElementById('lote').value;
+    }
+    
+    const et = document.getElementById('etiqueta');
+    et.style.width = (document.getElementById('largura').value || 7) + "cm";
+    et.style.height = (document.getElementById('altura').value || 10) + "cm";
+}
+
+async function exportJPG() {
+    const c = await html2canvas(document.getElementById('etiqueta'), {scale:4});
+    const a = document.createElement("a");
+    a.href = c.toDataURL("image/jpeg", 0.95);
+    a.download = 'etiqueta.jpg'; a.click();
+}
+
+async function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const w = parseFloat(document.getElementById('largura').value);
+    const h = parseFloat(document.getElementById('altura').value);
+    const c = await html2canvas(document.getElementById('etiqueta'), { scale: 4 });
+    const pdf = new jsPDF({ unit: "cm", format: [w, h] });
+    pdf.addImage(c.toDataURL("image/png"), 'PNG', 0, 0, w, h);
+    pdf.save('etiqueta.pdf');
+}
+
+window.onload = () => { addLinhaIngrediente(); atualizar(); };
+</script>
+</body>
+</html>

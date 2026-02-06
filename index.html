@@ -14,6 +14,7 @@
         label { font-size:11px; font-weight: 700; margin-top: 10px; display: block; color: #64748b; text-transform: uppercase; }
         input, select { width:100%; padding:8px; font-size:13px; border:1px solid var(--border); border-radius:8px; box-sizing: border-box; margin-top: 4px; }
         .check-group { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; font-weight: bold; color: #475569; }
+        .check-group input { width: auto; margin: 0; cursor: pointer; }
         .grid-new-item { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: #fff1f2; padding: 12px; border-radius: 10px; margin-top: 10px; }
         .full-width { grid-column: span 3; }
         .btn-save-item { grid-column: span 3; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 5px; }
@@ -33,9 +34,10 @@
         .ing-lista { font-size: 7px; margin-top: 8px; line-height: 1.2; text-align: justify; }
         .selo-alerta { border: 1px solid #000; text-align: center; font-weight: bold; margin-top: 5px; padding: 3px; font-size: 8px; }
         .datas-box { display: flex; justify-content: space-between; flex-wrap: wrap; font-size: 6.8px; margin-top: 12px; font-weight: bold; border-top: 1px dashed #000; padding: 8px 8px 4px 8px; gap: 5px; width: 100%; box-sizing: border-box; }
-        .obs-legal { font-size: 5.5px; text-align: center; margin-top: 5px; width: 100%; }
+        .obs-legal { font-size: 5.5px; text-align: center; margin-top: 5px; width: 100%; line-height: 1.1; }
         .disclaimer { font-size: 10px; color: #94a3b8; text-align: center; margin-top: 15px; font-style: italic; }
         .oculto { display: none !important; }
+        @media print { .sidebar, .panel, .disclaimer { display: none; } body { background: white; padding: 0; } .preview { border: none; padding: 0; } }
     </style>
 </head>
 <body>
@@ -69,34 +71,35 @@
             </div>
         </div>
         <div class="panel">
-            <h2>Configurações</h2>
+            <h2>Receita e Rendimento</h2>
             <div id="lista_ingredientes"></div>
-            <button class="btn-add" onclick="addLinhaIngrediente()">+ Ingrediente</button>
+            <button class="btn-add" onclick="addLinhaIngrediente()">+ Adicionar Ingrediente</button>
             <label>Peso Final Receita (g)</label><input id="peso_rendimento" type="number" value="1000" oninput="atualizar()">
             <div style="display: flex; gap: 8px;">
                 <div style="flex:1"><label>Larg (cm)</label><input id="largura" type="number" value="7" oninput="atualizar()"></div>
                 <div style="flex:1"><label>Alt (cm)</label><input id="altura" type="number" value="10" oninput="atualizar()"></div>
             </div>
             <label>Peso Porção (g)</label><input id="peso_porcao" type="number" value="100" oninput="atualizar()">
-            <label>Alergênicos</label>
+            <label>Glúten / Lactose</label>
             <select id="sel_alerta" onchange="atualizar()">
-                <option value="CONTÉM GLÚTEN. CONTÉM LACTOSE.">Glúten e Lactose</option>
+                <option value="CONTÉM GLÚTEN. CONTÉM LACTOSE.">Contém Glúten e Lactose</option>
                 <option value="NÃO CONTÉM GLÚTEN. NÃO CONTÉM LACTOSE.">Sem Glúten e Sem Lactose</option>
+                <option value="">Nenhuma Informação</option>
             </select>
             <div class="check-group">
                 <input type="checkbox" id="chk_data" checked onchange="atualizar()"> 
-                <label>EXIBIR VALIDADE/LOTE</label>
+                <label style="cursor:pointer;" for="chk_data">EXIBIR VALIDADE E LOTE</label>
             </div>
             <div id="painel_datas">
                 <div style="display: flex; gap: 8px;">
-                    <div style="flex:1"><label>Val.</label><input id="validade" value="15/05/2026" oninput="atualizar()"></div>
+                    <div style="flex:1"><label>Validade</label><input id="validade" value="15/05/2026" oninput="atualizar()"></div>
                     <div style="flex:1"><label>Lote</label><input id="lote" value="2024-01" oninput="atualizar()"></div>
                 </div>
             </div>
             <div class="buttons-export">
                 <button class="btn-exp" style="background:#000" onclick="window.print()">PRINT</button>
-                <button class="btn-exp" style="background:#dc2626;" onclick="exportPDF()">PDF</button>
-                <button class="btn-exp" style="background:#2563eb;" onclick="exportJPG()">JPG</button>
+                <button class="btn-exp" style="background:#dc2626;" onclick="exportPDF()">GERAR PDF</button>
+                <button class="btn-exp" style="background:#2563eb;" onclick="exportJPG()">GERAR JPG</button>
             </div>
         </div>
         <p class="disclaimer">Valores estimativos. Valide sempre com dados reais.</p>
@@ -130,10 +133,18 @@
 <script>
 const DB_PADRAO = {
     "leite_cond": { nome: "Leite Condensado", kcal: 322, carbo: 54, prot: 7.2, gord: 8.5, sodio: 100, acucar: 54 },
-    "creme_leite": { nome: "Creme de Leite Cx", kcal: 163, carbo: 4.5, prot: 2.1, gord: 15, sodio: 50, acucar: 0 },
-    "manteiga": { nome: "Manteiga s/ Sal", kcal: 717, carbo: 0.1, prot: 0.8, gord: 81, sodio: 11, acucar: 0 },
-    "chocolate": { nome: "Chocolate ao Leite", kcal: 540, carbo: 58, prot: 5.5, gord: 31, sodio: 80, acucar: 50 },
-    "farinha": { nome: "Farinha de Trigo", kcal: 360, carbo: 75, prot: 10, gord: 1, sodio: 0, acucar: 0 }
+    "creme_leite_cx": { nome: "Creme de Leite Cx", kcal: 163, carbo: 4.5, prot: 2.1, gord: 15, sodio: 50, acucar: 0 },
+    "leite_integral": { nome: "Leite de Caixinha Integral", kcal: 60, carbo: 4.7, prot: 3.2, gord: 3.2, sodio: 45, acucar: 0 },
+    "leite_ninho": { nome: "Leite em Pó (Ninho)", kcal: 496, carbo: 38, prot: 26, gord: 27, sodio: 370, acucar: 0 },
+    "manteiga_sem_sal": { nome: "Manteiga s/ Sal", kcal: 717, carbo: 0.1, prot: 0.8, gord: 81, sodio: 11, acucar: 0 },
+    "chocolate_ao_leite": { nome: "Chocolate ao Leite", kcal: 540, carbo: 58, prot: 5.5, gord: 31, sodio: 80, acucar: 50 },
+    "chocolate_meio_amargo": { nome: "Chocolate Meio Amargo", kcal: 470, carbo: 50, prot: 4, gord: 28, sodio: 10, acucar: 40 },
+    "farinha_trigo": { nome: "Farinha de Trigo", kcal: 360, carbo: 75, prot: 10, gord: 1, sodio: 0, acucar: 0 },
+    "ovo_inteiro": { nome: "Ovo Inteiro", kcal: 143, carbo: 1, prot: 13, gord: 9, sodio: 124, acucar: 0 },
+    "nutella": { nome: "Nutella", kcal: 533, carbo: 57, prot: 6, gord: 31, sodio: 42, acucar: 56 },
+    "doce_leite": { nome: "Doce de Leite", kcal: 315, carbo: 55, prot: 6, gord: 7, sodio: 120, acucar: 50 },
+    "pistache": { nome: "Pistache s/ Sal", kcal: 560, carbo: 28, prot: 20, gord: 45, sodio: 1, acucar: 7 },
+    "sal": { nome: "Sal", kcal: 0, carbo: 0, prot: 0, gord: 0, sodio: 38758, acucar: 0 }
 };
 const ALERGENICOS = ["LEITE", "OVO", "TRIGO", "AMENDOIM", "AMÊNDOA", "AVELÃ", "PISTACHE", "SOJA", "CASTANHA"];
 let DB_CUSTOM = JSON.parse(localStorage.getItem('db_final_v2')) || {};

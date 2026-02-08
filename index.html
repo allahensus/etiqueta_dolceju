@@ -7,14 +7,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root { --primary: #db2777; --bg: #fdf2f8; --border: #f9a8d4; --shadow: rgba(219, 39, 119, 0.15); }
-        body{ font-family: 'Inter', sans-serif; background: var(--bg); margin:0; padding:0; color: #334155; overflow-x: hidden; }
+        body{ font-family: 'Inter', sans-serif; background: var(--bg); margin:0; padding:0; color: #334155; }
         
-        /* LANDING PAGE DolceJu */
         #landing-page { position: fixed; top:0; left:0; width: 100%; height: 100%; background: radial-gradient(circle at center, #fff, var(--bg)); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.6s ease; }
         .hero-card { text-align: center; padding: 40px; background: #fff; border-radius: 30px; box-shadow: 0 20px 50px rgba(219, 39, 119, 0.2); border: 2px solid var(--border); max-width: 500px; }
-        .btn-start { background: var(--primary); color: #fff; border: none; padding: 15px 40px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(219, 39, 119, 0.3); }
+        .btn-start { background: var(--primary); color: #fff; border: none; padding: 15px 40px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.3s; }
 
-        /* APP LAYOUT */
         .app { display:grid; grid-template-columns: 420px 1fr; gap:30px; max-width:1400px; margin:auto; padding: 20px; display: none; }
         .panel { background:#fff; border-radius:15px; padding:20px; box-shadow:0 4px 15px var(--shadow); margin-bottom: 20px; border: 1px solid var(--border); transition: all 0.3s ease; }
         .panel:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(219, 39, 119, 0.2); border-color: var(--primary); }
@@ -23,36 +21,46 @@
         label { font-size:10px; font-weight: 700; margin-top: 10px; display: block; color: #64748b; text-transform: uppercase; }
         input, select { width:100%; padding:8px; font-size:13px; border:1px solid var(--border); border-radius:8px; box-sizing: border-box; margin-top: 4px; outline: none; }
         
-        /* NOVO INSUMO GRID */
         .grid-new-item { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #fff1f2; padding: 15px; border-radius: 12px; margin-top: 10px; }
         .full-width { grid-column: span 3; }
         .btn-save-item { grid-column: span 3; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; }
         
-        .ingrediente-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-        
+        .ingrediente-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
         .btn-add { background: #be185d; color: #fff; width: 100%; margin: 15px 0; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
 
-        /* RECEITAS SALVAS */
-        .saved-recipes { margin-top: 10px; max-height: 250px; overflow-y: auto; padding: 5px; }
-        .recipe-tag { display: flex; justify-content: space-between; align-items: center; background: var(--bg); padding: 10px; border-radius: 10px; margin-bottom: 8px; font-size: 13px; cursor: pointer; border: 1px solid transparent; font-weight: 600; }
-        .recipe-tag:hover { border-color: var(--primary); background: #fff; }
-        .btn-del-recipe { color: #ef4444; border: none; background: none; cursor: pointer; font-size: 16px; }
+        /* PREVIEW - AJUSTE PARA ETIQUETAS ESTREITAS (5cm) */
+        .preview { position: sticky; top: 20px; display: flex; justify-content: center; background: #fff; border-radius: 20px; padding: 20px; border: 2px dashed var(--border); overflow: auto; min-height: 500px; }
+        
+        #etiqueta { 
+            background: #fff; border: 1px solid #000; padding: 8px; 
+            box-sizing: border-box; font-family: Arial, sans-serif; 
+            display: flex; flex-direction: column; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            line-height: 1.1;
+        }
+        
+        .tabela { border: 1.2px solid #000; width: 100%; border-collapse: collapse; font-size: 7px; margin-top: 4px; }
+        .tabela td { border: 1px solid #000; padding: 2.5px 3px; text-align: right; }
+        .tabela td:first-child { text-align: left; font-weight: bold; width: 45%; }
+        
+        .ingredientes-container {
+            flex-grow: 1; 
+            font-size: 7px; 
+            margin-top: 6px; 
+            text-align: justify;
+            display: flex;
+            flex-direction: column;
+        }
 
-        .preview { position: sticky; top: 20px; display: flex; justify-content: center; background: #fff; border-radius: 20px; padding: 40px; border: 2px dashed var(--border); }
-        #etiqueta { background: #fff; border: 1px solid #000; padding: 12px; box-sizing: border-box; font-family: Arial, sans-serif; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
-        
-        .tabela { border: 1.5px solid #000; width: 100%; border-collapse: collapse; font-size: 7.5px; }
-        .tabela td { border: 1px solid #000; padding: 2.5px 4px; text-align: right; }
-        .tabela td:first-child { text-align: left; }
-        
+        .footer-etiqueta { margin-top: auto; padding-bottom: 2px; }
+
         .check-group { display: flex; align-items: center; gap: 10px; margin: 15px 0; font-size: 11px; font-weight: bold; color: #475569; }
-        .check-group input { width: 18px; height: 18px; margin: 0; cursor: pointer; }
-
-        .buttons-export { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top: 15px; }
-        .btn-exp { border: none; padding: 12px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 11px; }
         .btn-action-green { background: #10b981; color: white; width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .oculto { display: none !important; }
+        @media print { .sidebar, .panel, #landing-page { display: none; } .app { display: block; } .preview { border: none; padding: 0; } #etiqueta { box-shadow: none; border: 1px solid #000; } }
     </style>
 </head>
 <body>
@@ -60,7 +68,7 @@
 <div id="landing-page">
     <div class="hero-card">
         <h1>🍓 Etiqueta Padrão DolceJu</h1>
-        <p>Sistema profissional para docerias gourmet.</p>
+        <p>Sistema Profissional de Gestão Nutricional.</p>
         <button class="btn-start" onclick="entrar()">Acessar Agora</button>
     </div>
 </div>
@@ -77,12 +85,12 @@
         </div>
 
         <div class="panel">
-            <h2>📁 Banco de Receitas</h2>
-            <div id="lista_receitas_salvas" class="saved-recipes"></div>
+            <h2>📁 Minhas Etiquetas Salvas</h2>
+            <div id="lista_receitas_salvas" style="max-height: 200px; overflow-y: auto; margin-bottom: 10px;"></div>
             <button class="btn-action-green" onclick="salvarConfiguracaoAtual()">💾 SALVAR ETIQUETA ATUAL</button>
             <div style="display: flex; gap: 8px; margin-top: 10px;">
-                <button onclick="exportarBancoReceitas()" style="flex:1; font-size:9px; cursor:pointer; padding:5px; border-radius:5px; border:1px solid #ddd;">Backup JSON</button>
-                <button onclick="importarBancoReceitas()" style="flex:1; font-size:9px; cursor:pointer; padding:5px; border-radius:5px; border:1px solid #ddd;">Restaurar JSON</button>
+                <button onclick="exportarBanco()" style="flex:1; font-size:9px; cursor:pointer; padding:5px;">Backup JSON</button>
+                <button onclick="importarBanco()" style="flex:1; font-size:9px; cursor:pointer; padding:5px;">Restaurar</button>
             </div>
         </div>
 
@@ -91,12 +99,12 @@
             <div class="grid-new-item">
                 <div class="full-width"><label>Ingrediente</label><input id="new_nome"></div>
                 <div><label>Kcal</label><input type="number" id="new_kcal"></div>
-                <div><label>Prot</label><input type="number" id="new_prot"></div>
-                <div><label>Gord</label><input type="number" id="new_gord"></div>
-                <div><label>Açúcar Adic.</label><input type="number" id="new_acucar"></div>
+                <div><label>Prot(g)</label><input type="number" id="new_prot"></div>
+                <div><label>Gord(g)</label><input type="number" id="new_gord"></div>
+                <div><label>Açúcar Ad.</label><input type="number" id="new_acucar"></div>
                 <div><label>Sódio(mg)</label><input type="number" id="new_sodio"></div>
                 <div><label>Sal(g)</label><input type="number" placeholder="Conv Sal" oninput="document.getElementById('new_sodio').value = Math.round(this.value * 400)"></div>
-                <button class="btn-save-item" onclick="cadastrarInsumo()">💾 CADASTRAR INSUMO</button>
+                <button class="btn-save-item" onclick="cadastrarInsumo()">💾 CADASTRAR</button>
             </div>
         </div>
 
@@ -108,10 +116,12 @@
             <label>Peso Final Pronto (g)</label>
             <input id="peso_rendimento" type="number" value="1000" oninput="atualizar()">
             <div style="display: flex; gap: 8px;">
-                <div style="flex:1"><label>Larg (cm)</label><input id="largura" type="number" value="7" oninput="atualizar()"></div>
+                <div style="flex:1"><label>Larg (cm)</label><input id="largura" type="number" value="5" oninput="atualizar()"></div>
                 <div style="flex:1"><label>Alt (cm)</label><input id="altura" type="number" value="10" oninput="atualizar()"></div>
             </div>
-            
+            <label>Peso da Porção (g)</label>
+            <input id="peso_porcao" type="number" value="100" oninput="atualizar()">
+
             <label>Glúten / Lactose</label>
             <select id="sel_alerta" onchange="atualizar()">
                 <option value="">Selecione...</option>
@@ -135,23 +145,28 @@
                 </div>
             </div>
 
-            <div class="buttons-export">
-                <button class="btn-exp" style="background:#000" onclick="window.print()">PRINT</button>
-                <button class="btn-exp" style="background:#dc2626;" onclick="exportPDF()">PDF</button>
-                <button class="btn-exp" style="background:#2563eb;" onclick="exportJPG()">JPG</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:15px;">
+                <button onclick="window.print()" style="padding:10px; background:#000; color:#fff; border-radius:8px; cursor:pointer;">PRINT</button>
+                <button onclick="exportPDF()" style="padding:10px; background:#dc2626; color:#fff; border-radius:8px; cursor:pointer;">PDF</button>
+                <button onclick="exportJPG()" style="padding:10px; background:#2563eb; color:#fff; border-radius:8px; cursor:pointer;">JPG</button>
             </div>
         </div>
     </div>
 
     <div class="preview">
         <div id="etiqueta">
-            <img id="v_logo" style="max-width:65px; max-height:45px; margin:0 auto 5px auto; display:block; object-fit:contain;" class="oculto">
-            <div id="v_empresa" style="text-align:center; font-size:9px; font-weight:bold; text-transform:uppercase; border-bottom:1px solid #000; padding-bottom:2px; margin-bottom:4px;"></div>
-            <div id="v_nome" style="font-size:13px; font-weight:bold; text-align:center; text-transform:uppercase; margin:4px 0;"></div>
-            <div style="text-align:center; font-weight:bold; font-size:9px; border-top:1px solid #000; padding-top:2px;">INFORMAÇÃO NUTRICIONAL</div>
-            <div id="v_porcao_txt" style="font-size:8px; text-align:center; margin-bottom:4px;"></div>
+            <div style="border-bottom: 1px solid #000; padding-bottom: 2px;">
+                <img id="v_logo" style="max-width:45px; max-height:30px; margin:0 auto 3px auto; display:block; object-fit:contain;" class="oculto">
+                <div id="v_empresa" style="text-align:center; font-size:8px; font-weight:bold; text-transform:uppercase;"></div>
+            </div>
+            
+            <div id="v_nome" style="font-size:11px; font-weight:bold; text-align:center; text-transform:uppercase; margin:4px 0;"></div>
+            
+            <div style="text-align:center; font-weight:bold; font-size:8px; border-top:1.2px solid #000; padding-top:2px;">INFORMAÇÃO NUTRICIONAL</div>
+            <div id="v_porcao_txt" style="font-size:7px; text-align:center; margin-bottom:2px;"></div>
+            
             <table class="tabela">
-                <tr style="font-weight:bold;"><td>Constituintes</td><td>100g</td><td>Porção</td><td>%VD*</td></tr>
+                <tr style="font-weight:bold; background-color: #f2f2f2;"><td>Constituintes</td><td>100g</td><td>Porção</td><td>%VD*</td></tr>
                 <tr><td>V. Energético (kcal)</td><td id="v100_kcal"></td><td id="vp_kcal"></td><td id="vd_kcal"></td></tr>
                 <tr><td>Carboidratos (g)</td><td id="v100_carbo"></td><td id="vp_carbo"></td><td id="vd_carbo"></td></tr>
                 <tr><td>Açúcares adic. (g)</td><td id="v100_acucar"></td><td id="vp_acucar"></td><td id="vd_acucar"></td></tr>
@@ -159,13 +174,19 @@
                 <tr><td>Gorduras totais (g)</td><td id="v100_gord"></td><td id="vp_gord"></td><td id="vd_gord"></td></tr>
                 <tr><td>Sódio (mg)</td><td id="v100_sodio"></td><td id="vp_sodio"></td><td id="vd_sodio"></td></tr>
             </table>
-            <div style="font-size:7px; margin-top:8px; line-height:1.2; text-align:justify;"><strong>INGREDIENTES:</strong> <span id="v_ing_lista"></span></div>
-            <div id="v_alerta" style="border: 1px solid #000; text-align: center; font-weight: bold; margin-top: 8px; padding: 4px; font-size: 8.5px; text-transform: uppercase;"></div>
-            <div id="v_datas_box" style="display:flex; justify-content:space-between; font-size:7px; margin-top:12px; font-weight:bold; border-top:1px dashed #000; padding-top:8px;">
-                <div>VAL: <span id="v_val"></span></div>
-                <div>LOTE: <span id="v_lote"></span></div>
+
+            <div class="ingredientes-container">
+                <div><strong>INGREDIENTES:</strong> <span id="v_ing_lista"></span></div>
+                <div id="v_alerta" style="border: 1px solid #000; text-align: center; font-weight: bold; margin-top: 5px; padding: 2px; font-size: 7px; text-transform: uppercase;"></div>
             </div>
-            <div style="font-size:5.5px; text-align:center; margin-top:5px; width:100%;">* % Valores Diários base em dieta de 2.000 kcal.</div>
+
+            <div class="footer-etiqueta">
+                <div id="v_datas_box" style="display:flex; justify-content:space-between; font-size:7px; font-weight:bold; border-top:1px dashed #000; padding-top:4px; margin-top: 5px;">
+                    <div>VAL: <span id="v_val"></span></div>
+                    <div>LOTE: <span id="v_lote"></span></div>
+                </div>
+                <div style="font-size:5px; text-align:center; margin-top:3px; width:100%;">* % Valores Diários base em dieta de 2.000 kcal.</div>
+            </div>
         </div>
     </div>
 </div>
@@ -173,111 +194,53 @@
 <script>
 function entrar() { document.getElementById('landing-page').style.opacity = '0'; setTimeout(() => { document.getElementById('landing-page').style.display = 'none'; document.getElementById('main-app').style.display = 'grid'; renderizarReceitas(); atualizar(); }, 600); }
 
+// BANCO DE DADOS TOP 30 - CONFEITARIA GOURMET
 const DB_PADRAO = {
-    "leite_cond": { nome: "Leite Condensado", kcal: 322, prot: 7.2, gord: 8.5, acucar: 54, sodio: 100 },
-    "creme_leite_cx": { nome: "Creme de Leite Cx", kcal: 163, prot: 2.1, gord: 15, acucar: 0, sodio: 50 },
-    "leite_integral": { nome: "Leite Integral", kcal: 60, prot: 3.2, gord: 3.2, acucar: 0, sodio: 43 },
-    "leite_ninho": { nome: "Leite em Pó (Ninho)", kcal: 496, prot: 26, gord: 27, acucar: 0, sodio: 370 },
-    "manteiga_sem_sal": { nome: "Manteiga s/ Sal", kcal: 717, prot: 0.8, gord: 81, acucar: 0, sodio: 11 },
-    "chocolate_ao_leite": { nome: "Chocolate ao Leite", kcal: 540, prot: 5.5, gord: 31, acucar: 50, sodio: 80 },
-    "chocolate_meio_amargo": { nome: "Chocolate Meio Amargo", kcal: 470, prot: 4, gord: 28, acucar: 40, sodio: 10 },
-    "chocolate_branco": { nome: "Chocolate Branco", kcal: 539, prot: 5.9, gord: 32, acucar: 53, sodio: 78 },
+    "leite_cond": { nome: "Leite Condensado (Integral)", kcal: 322, prot: 7.2, gord: 8.5, acucar: 54, sodio: 100 },
+    "creme_leite_cx": { nome: "Creme de Leite (Caixa)", kcal: 163, prot: 2.1, gord: 15, acucar: 0, sodio: 50 },
+    "creme_leite_fresco": { nome: "Creme de Leite Fresco", kcal: 350, prot: 2, gord: 35, acucar: 0, sodio: 40 },
+    "manteiga": { nome: "Manteiga s/ Sal", kcal: 717, prot: 0.8, gord: 81, acucar: 0, sodio: 11 },
+    "choc_ao_leite": { nome: "Chocolate ao Leite Nobre", kcal: 540, prot: 5.5, gord: 31, acucar: 50, sodio: 80 },
+    "choc_meio_amargo": { nome: "Chocolate Meio Amargo", kcal: 470, prot: 4, gord: 28, acucar: 40, sodio: 10 },
+    "choc_70": { nome: "Chocolate 70% Cacau", kcal: 560, prot: 7, gord: 42, acucar: 28, sodio: 5 },
+    "choc_branco": { nome: "Chocolate Branco Nobre", kcal: 539, prot: 5.9, gord: 32, acucar: 53, sodio: 78 },
     "cacau_100": { nome: "Cacau em Pó 100%", kcal: 228, prot: 19, gord: 13, acucar: 0, sodio: 21 },
-    "acucar_refinado": { nome: "Açúcar Refinado", kcal: 387, prot: 0, gord: 0, acucar: 100, sodio: 0 },
-    "acucar_cristal": { nome: "Açúcar Cristal", kcal: 387, prot: 0, gord: 0, acucar: 100, sodio: 0 },
-    "acucar_confeiteiro": { nome: "Açúcar de Confeiteiro", kcal: 389, prot: 0, gord: 0, acucar: 100, sodio: 2 },
+    "nutella": { nome: "Nutella (Pasta Avelã)", kcal: 539, prot: 6.3, gord: 31, acucar: 56, sodio: 42 },
+    "doce_leite": { nome: "Doce de Leite Pastoso", kcal: 315, prot: 6, gord: 7.5, acucar: 50, sodio: 120 },
+    "pistache": { nome: "Pistache Sem Sal", kcal: 560, prot: 20, gord: 45, acucar: 7, sodio: 1 },
+    "pasta_pistache": { nome: "Pasta de Pistache", kcal: 620, prot: 18, gord: 52, acucar: 15, sodio: 5 },
+    "leite_ninho": { nome: "Leite em Pó (Ninho)", kcal: 496, prot: 26, gord: 27, acucar: 0, sodio: 370 },
     "farinha_trigo": { nome: "Farinha de Trigo", kcal: 360, prot: 10, gord: 1.4, acucar: 0, sodio: 2 },
     "farinha_amendoas": { nome: "Farinha de Amêndoas", kcal: 579, prot: 21, gord: 50, acucar: 4, sodio: 1 },
+    "acucar_refinado": { nome: "Açúcar Refinado", kcal: 387, prot: 0, gord: 0, acucar: 100, sodio: 0 },
+    "acucar_confeiteiro": { nome: "Açúcar de Confeiteiro", kcal: 389, prot: 0, gord: 0, acucar: 100, sodio: 2 },
     "ovo_inteiro": { nome: "Ovo Inteiro", kcal: 143, prot: 12, gord: 9.5, acucar: 0, sodio: 124 },
-    "nutella": { nome: "Nutella", kcal: 539, prot: 6.3, gord: 31, acucar: 56, sodio: 42 },
-    "doce_leite": { nome: "Doce de Leite", kcal: 315, prot: 6, gord: 7.5, acucar: 50, sodio: 120 },
-    "pistache": { nome: "Pistache s/ Sal", kcal: 560, prot: 20, gord: 45, acucar: 7, sodio: 1 },
-    "nozes": { nome: "Nozes", kcal: 654, prot: 15, gord: 65, acucar: 2, sodio: 2 },
-    "avelas": { nome: "Avelãs", kcal: 628, prot: 15, gord: 61, acucar: 4, sodio: 0 },
-    "castanha_caju": { nome: "Castanha de Caju", kcal: 553, prot: 18, gord: 44, acucar: 6, sodio: 12 },
-    "castanha_para": { nome: "Castanha do Pará", kcal: 659, prot: 14, gord: 66, acucar: 2, sodio: 3 },
-    "amendoim": { nome: "Amendoim Torrado", kcal: 567, prot: 26, gord: 49, acucar: 4, sodio: 18 },
-    "coco_ralado": { nome: "Coco Ralado s/ Açúcar", kcal: 660, prot: 6.9, gord: 65, acucar: 7, sodio: 37 },
-    "oleo_coco": { nome: "Óleo de Coco", kcal: 862, prot: 0, gord: 100, acucar: 0, sodio: 0 },
-    "azeite": { nome: "Azeite de Oliva", kcal: 884, prot: 0, gord: 100, acucar: 0, sodio: 0 },
-    "mel": { nome: "Mel de Abelha", kcal: 304, prot: 0.3, gord: 0, acucar: 82, sodio: 4 },
-    "glucose": { nome: "Xarope de Glucose", kcal: 340, prot: 0, gord: 0, acucar: 30, sodio: 10 },
-    "chantilly": { nome: "Chantilly Batido", kcal: 257, prot: 1.5, gord: 21, acucar: 12, sodio: 45 },
     "cream_cheese": { nome: "Cream Cheese", kcal: 342, prot: 6, gord: 34, acucar: 3, sodio: 321 },
-    "queijo_mascarpone": { nome: "Queijo Mascarpone", kcal: 412, prot: 5, gord: 42, acucar: 0, sodio: 55 },
-    "leite_coco": { nome: "Leite de Coco", kcal: 230, prot: 2.3, gord: 24, acucar: 3, sodio: 15 },
+    "coco_ralado": { nome: "Coco Ralado s/ Açúcar", kcal: 660, prot: 6.9, gord: 65, acucar: 7, sodio: 37 },
+    "amendoim": { nome: "Amendoim Torrado", kcal: 567, prot: 26, gord: 49, acucar: 4, sodio: 18 },
+    "nozes": { nome: "Nozes Quartos", kcal: 654, prot: 15, gord: 65, acucar: 2, sodio: 2 },
+    "avelas": { nome: "Avelãs Inteiras", kcal: 628, prot: 15, gord: 61, acucar: 4, sodio: 0 },
     "gelatina_po": { nome: "Gelatina em Pó", kcal: 335, prot: 84, gord: 0, acucar: 0, sodio: 350 },
-    "fermento_quimico": { nome: "Fermento Químico", kcal: 97, prot: 0, gord: 0, acucar: 0, sodio: 9800 },
-    "sal_refinado": { nome: "Sal Refinado", kcal: 0, prot: 0, gord: 0, acucar: 0, sodio: 38758 }
+    "glicose_milho": { nome: "Glicose de Milho", kcal: 320, prot: 0, gord: 0, acucar: 75, sodio: 30 },
+    "granulado_ao_leite": { nome: "Granulado Chocolate ao Leite", kcal: 480, prot: 3, gord: 20, acucar: 65, sodio: 45 },
+    "biscoito_oreo": { nome: "Biscoito Tipo Oreo", kcal: 475, prot: 4.8, gord: 20, acucar: 38, sodio: 520 },
+    "pasta_amendoim": { nome: "Pasta de Amendoim Integral", kcal: 588, prot: 25, gord: 49, acucar: 3, sodio: 0 },
+    "canela_po": { nome: "Canela em Pó", kcal: 247, prot: 4, gord: 1.2, acucar: 2, sodio: 10 }
 };
 
-let DB_CUSTOM = JSON.parse(localStorage.getItem('db_dolceju_custom')) || {};
-let RECEITAS = JSON.parse(localStorage.getItem('db_dolceju_receitas')) || {};
+let DB_CUSTOM = JSON.parse(localStorage.getItem('db_dolceju_v9_custom')) || {};
+let RECEITAS = JSON.parse(localStorage.getItem('db_dolceju_v9_receitas')) || {};
 let DB = { ...DB_PADRAO, ...DB_CUSTOM };
 const ALERGENICOS = ["LEITE", "OVO", "TRIGO", "AMENDOIM", "AMÊNDOA", "AVELÃ", "PISTACHE", "SOJA", "CASTANHA"];
 
 function carregarLogo(e) { const reader = new FileReader(); reader.onload = function(){ document.getElementById('v_logo').src = reader.result; document.getElementById('v_logo').classList.remove('oculto'); }; reader.readAsDataURL(e.target.files[0]); }
-
-function cadastrarInsumo() {
-    const nome = document.getElementById('new_nome').value;
-    if(!nome) return alert("Digite o nome");
-    const id = "c_" + Date.now();
-    DB_CUSTOM[id] = { nome: nome, kcal: parseFloat(document.getElementById('new_kcal').value)||0, prot: parseFloat(document.getElementById('new_prot').value)||0, gord: parseFloat(document.getElementById('new_gord').value)||0, acucar: parseFloat(document.getElementById('new_acucar').value)||0, sodio: parseFloat(document.getElementById('new_sodio').value)||0 };
-    localStorage.setItem('db_dolceju_custom', JSON.stringify(DB_CUSTOM));
-    location.reload();
-}
-
-function salvarConfiguracaoAtual() {
-    const nomeReceita = prompt("Dê um nome para esta etiqueta (ex: Pudim 300g):");
-    if (!nomeReceita) return;
-    const ingredientes = [];
-    document.querySelectorAll('.ingrediente-row').forEach(row => {
-        ingredientes.push({ id: row.querySelector('select').value, peso: row.querySelector('input').value });
-    });
-    RECEITAS[nomeReceita] = {
-        empresa: document.getElementById('empresa_nome').value, produto: document.getElementById('prod_nome').value,
-        ingredientes: ingredientes, rendimento: document.getElementById('peso_rendimento').value,
-        porcao: document.getElementById('peso_porcao').value, alerta: document.getElementById('sel_alerta').value,
-        larg: document.getElementById('largura').value, alt: document.getElementById('altura').value
-    };
-    localStorage.setItem('db_dolceju_receitas', JSON.stringify(RECEITAS));
-    renderizarReceitas();
-}
-
-function carregarReceita(nome) {
-    const r = RECEITAS[nome];
-    document.getElementById('empresa_nome').value = r.empresa; document.getElementById('prod_nome').value = r.produto;
-    document.getElementById('peso_rendimento').value = r.rendimento; document.getElementById('peso_porcao').value = r.porcao;
-    document.getElementById('sel_alerta').value = r.alerta; document.getElementById('largura').value = r.larg; document.getElementById('altura').value = r.alt;
-    const container = document.getElementById('lista_ingredientes'); container.innerHTML = '';
-    r.ingredientes.forEach(ing => {
-        addLinhaIngrediente();
-        const lastRow = container.lastChild;
-        lastRow.querySelector('select').value = ing.id; lastRow.querySelector('input').value = ing.peso;
-    });
-    atualizar();
-}
-
-function renderizarReceitas() {
-    const div = document.getElementById('lista_receitas_salvas'); div.innerHTML = '';
-    Object.keys(RECEITAS).forEach(nome => {
-        div.innerHTML += `<div class="recipe-tag" onclick="carregarReceita('${nome}')">${nome} <button class="btn-del-recipe" onclick="event.stopPropagation(); deletarReceita('${nome}')">✕</button></div>`;
-    });
-}
-
-function deletarReceita(nome) { if(confirm("Excluir?")) { delete RECEITAS[nome]; localStorage.setItem('db_dolceju_receitas', JSON.stringify(RECEITAS)); renderizarReceitas(); } }
-
-function exportarBancoReceitas() { const data = JSON.stringify({ custom: DB_CUSTOM, receitas: RECEITAS }); const blob = new Blob([data], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'backup-dolceju.json'; a.click(); }
-function importarBancoReceitas() { const input = document.createElement('input'); input.type = 'file'; input.onchange = e => { const file = e.target.files[0]; const reader = new FileReader(); reader.onload = ev => { const d = JSON.parse(ev.target.result); localStorage.setItem('db_dolceju_custom', JSON.stringify(d.custom)); localStorage.setItem('db_dolceju_receitas', JSON.stringify(d.receitas)); location.reload(); }; reader.readAsText(file); }; input.click(); }
-
-function addLinhaIngrediente() {
-    const container = document.getElementById('lista_ingredientes');
-    const div = document.createElement('div'); div.className = 'ingrediente-row';
-    let opt = '<option value="">Selecione...</option>';
-    Object.keys(DB).sort((a,b) => DB[a].nome.localeCompare(DB[b].nome)).forEach(k => opt += `<option value="${k}">${DB[k].nome}</option>`);
-    div.innerHTML = `<select onchange="atualizar()">${opt}</select><input type="number" placeholder="g" oninput="atualizar()"><button onclick="this.parentElement.remove(); atualizar();" style="border:none; background:none; cursor:pointer; font-size:18px;">✕</button>`;
-    container.appendChild(div);
-}
+function cadastrarInsumo() { const nome = document.getElementById('new_nome').value; if(!nome) return alert("Digite o nome"); const id = "c_" + Date.now(); DB_CUSTOM[id] = { nome: nome, kcal: parseFloat(document.getElementById('new_kcal').value)||0, prot: parseFloat(document.getElementById('new_prot').value)||0, gord: parseFloat(document.getElementById('new_gord').value)||0, acucar: parseFloat(document.getElementById('new_acucar').value)||0, sodio: parseFloat(document.getElementById('new_sodio').value)||0 }; localStorage.setItem('db_dolceju_v9_custom', JSON.stringify(DB_CUSTOM)); location.reload(); }
+function salvarConfiguracaoAtual() { const nomeR = prompt("Nome da etiqueta:"); if (!nomeR) return; const ings = []; document.querySelectorAll('.ingrediente-row').forEach(row => { ings.push({ id: row.querySelector('select').value, peso: row.querySelector('input').value }); }); RECEITAS[nomeR] = { empresa: document.getElementById('empresa_nome').value, produto: document.getElementById('prod_nome').value, ingredientes: ings, rendimento: document.getElementById('peso_rendimento').value, porcao: document.getElementById('peso_porcao').value, alerta: document.getElementById('sel_alerta').value, larg: document.getElementById('largura').value, alt: document.getElementById('altura').value }; localStorage.setItem('db_dolceju_v9_receitas', JSON.stringify(RECEITAS)); renderizarReceitas(); }
+function carregarReceita(n) { const r = RECEITAS[n]; document.getElementById('empresa_nome').value = r.empresa; document.getElementById('prod_nome').value = r.produto; document.getElementById('peso_rendimento').value = r.rendimento; document.getElementById('peso_porcao').value = r.porcao; document.getElementById('sel_alerta').value = r.alerta; document.getElementById('largura').value = r.larg; document.getElementById('altura').value = r.alt; const container = document.getElementById('lista_ingredientes'); container.innerHTML = ''; r.ingredientes.forEach(ing => { addLinhaIngrediente(); const last = container.lastChild; last.querySelector('select').value = ing.id; last.querySelector('input').value = ing.peso; }); atualizar(); }
+function renderizarReceitas() { const div = document.getElementById('lista_receitas_salvas'); div.innerHTML = ''; Object.keys(RECEITAS).forEach(n => { div.innerHTML += `<div style="display:flex; justify-content:space-between; background:#f1f5f9; padding:8px; margin-bottom:5px; border-radius:5px; cursor:pointer;" onclick="carregarReceita('${n}')"><span>${n}</span> <span onclick="event.stopPropagation(); delete RECEITAS['${n}']; localStorage.setItem('db_dolceju_v9_receitas', JSON.stringify(RECEITAS)); renderizarReceitas();" style="color:red;">✕</span></div>`; }); }
+function exportarBanco() { const data = JSON.stringify({ custom: DB_CUSTOM, receitas: RECEITAS }); const blob = new Blob([data], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'backup-dolceju.json'; a.click(); }
+function importarBanco() { const input = document.createElement('input'); input.type = 'file'; input.onchange = e => { const file = e.target.files[0]; const reader = new FileReader(); reader.onload = ev => { const d = JSON.parse(ev.target.result); localStorage.setItem('db_dolceju_v9_custom', JSON.stringify(d.custom)); localStorage.setItem('db_dolceju_v9_receitas', JSON.stringify(d.receitas)); location.reload(); }; reader.readAsText(file); }; input.click(); }
+function addLinhaIngrediente() { const container = document.getElementById('lista_ingredientes'); const div = document.createElement('div'); div.className = 'ingrediente-row'; let opt = '<option value="">Selecione...</option>'; Object.keys(DB).sort((a,b) => DB[a].nome.localeCompare(DB[b].nome)).forEach(k => opt += `<option value="${k}">${DB[k].nome}</option>`); div.innerHTML = `<select onchange="atualizar()">${opt}</select><input type="number" placeholder="g" oninput="atualizar()"><button onclick="this.parentElement.remove(); atualizar();" style="border:none; background:none; cursor:pointer; font-size:18px;">✕</button>`; container.appendChild(div); }
 
 function atualizar() {
     let somas = { kcal: 0, carbo: 0, prot: 0, gord: 0, sodio: 0, acucar: 0 };
@@ -318,23 +281,37 @@ function atualizar() {
     document.getElementById('v_empresa').innerText = document.getElementById('empresa_nome').value;
     document.getElementById('v_nome').innerText = document.getElementById('prod_nome').value;
     document.getElementById('v_porcao_txt').innerText = `Porção: ${porcao}g`;
-    
     document.getElementById('v_alerta').innerText = document.getElementById('sel_alerta').value;
     document.getElementById('v_alerta').classList.toggle('oculto', !document.getElementById('sel_alerta').value);
 
-    const exibir = document.getElementById('chk_data').checked;
-    document.getElementById('painel_datas').classList.toggle('oculto', !exibir);
-    document.getElementById('v_datas_box').classList.toggle('oculto', !exibir);
     document.getElementById('v_val').innerText = document.getElementById('validade').value;
     document.getElementById('v_lote').innerText = document.getElementById('lote').value;
 
     const et = document.getElementById('etiqueta');
-    et.style.width = (document.getElementById('largura').value || 7) + "cm";
-    et.style.height = (document.getElementById('altura').value || 10) + "cm";
+    const larguraCM = document.getElementById('largura').value || 5;
+    const alturaCM = document.getElementById('altura').value || 10;
+    et.style.width = larguraCM + "cm";
+    et.style.height = alturaCM + "cm";
 }
 
-async function exportJPG() { const c = await html2canvas(document.getElementById('etiqueta'), {scale:4}); const a = document.createElement("a"); a.href = c.toDataURL("image/jpeg", 0.95); a.download = 'etiqueta.jpg'; a.click(); }
-async function exportPDF() { const { jsPDF } = window.jspdf; const w = parseFloat(document.getElementById('largura').value); const h = parseFloat(document.getElementById('altura').value); const c = await html2canvas(document.getElementById('etiqueta'), { scale: 4 }); const pdf = new jsPDF({ unit: "cm", format: [w, h] }); pdf.addImage(c.toDataURL("image/png"), 'PNG', 0, 0, w, h); pdf.save('etiqueta.pdf'); }
+async function exportJPG() { 
+    const et = document.getElementById('etiqueta');
+    const c = await html2canvas(et, { scale: 4, useCORS: true }); 
+    const a = document.createElement("a"); 
+    a.href = c.toDataURL("image/jpeg", 0.95); 
+    a.download = 'etiqueta.jpg'; a.click(); 
+}
+
+async function exportPDF() { 
+    const { jsPDF } = window.jspdf; 
+    const w = parseFloat(document.getElementById('largura').value); 
+    const h = parseFloat(document.getElementById('altura').value); 
+    const et = document.getElementById('etiqueta');
+    const c = await html2canvas(et, { scale: 4, useCORS: true }); 
+    const pdf = new jsPDF({ unit: "cm", format: [w, h] }); 
+    pdf.addImage(c.toDataURL("image/png"), 'PNG', 0, 0, w, h); 
+    pdf.save('etiqueta.pdf'); 
+}
 window.onload = () => { addLinhaIngrediente(); };
 </script>
 </body>

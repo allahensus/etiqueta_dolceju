@@ -2,16 +2,31 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Etiqueta Padrão DolceJu</title>
+    <title>Etiqueta Padrão DolceJu - Gestão Nutricional Profissional</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         :root { --primary: #db2777; --bg: #fdf2f8; --border: #f9a8d4; --shadow: rgba(219, 39, 119, 0.15); --success: #10b981; }
         body{ font-family: 'Inter', sans-serif; background: var(--bg); margin:0; padding:0; color: #334155; }
-        #landing-page { position: fixed; top:0; left:0; width: 100%; height: 100%; background: radial-gradient(circle at center, #fff, var(--bg)); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.6s ease; }
-        .hero-card { text-align: center; padding: 40px; background: #fff; border-radius: 30px; box-shadow: 0 20px 50px rgba(219, 39, 119, 0.2); border: 2px solid var(--border); max-width: 500px; }
-        .btn-start { background: var(--primary); color: #fff; border: none; padding: 15px 40px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.3s; }
+        
+        /* NOVA LANDING PAGE GOURMET */
+        #landing-page { position: absolute; top:0; left:0; width: 100%; min-height: 100vh; background: radial-gradient(circle at top right, #fff, var(--bg)); display: flex; flex-direction: column; align-items: center; z-index: 9999; transition: opacity 0.6s ease; overflow-y: auto; padding-bottom: 50px; }
+        .hero-section { text-align: center; padding: 60px 20px; max-width: 800px; }
+        .hero-section h1 { font-size: 42px; color: var(--primary); margin-bottom: 10px; }
+        .hero-section p { font-size: 18px; color: #64748b; line-height: 1.6; }
+        
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 1000px; padding: 40px 20px; }
+        .feature-card { background: #fff; padding: 25px; border-radius: 20px; border: 1px solid var(--border); text-align: center; box-shadow: 0 10px 25px var(--shadow); }
+        .feature-card span { font-size: 30px; display: block; margin-bottom: 10px; }
+        .feature-card h3 { font-size: 16px; margin: 10px 0; color: var(--primary); }
+        .feature-card p { font-size: 13px; color: #64748b; margin: 0; }
+
+        .cta-box { text-align: center; margin-top: 20px; }
+        .btn-start { background: var(--primary); color: #fff; border: none; padding: 20px 60px; font-size: 20px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(219, 39, 119, 0.4); }
+        .btn-start:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(219, 39, 119, 0.5); }
+
+        /* ESTILOS DO APP (MANTIDOS) */
         .app { display:grid; grid-template-columns: 420px 1fr; gap:30px; max-width:1400px; margin:auto; padding: 20px; display: none; }
         .panel { background:#fff; border-radius:15px; box-shadow:0 4px 15px var(--shadow); margin-bottom: 15px; border: 1px solid var(--border); overflow: hidden; transition: all 0.3s ease; }
         .panel-header { background: #fff; padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bg); }
@@ -45,10 +60,38 @@
 <body>
 
 <div id="landing-page">
-    <div class="hero-card">
-        <h1>🍓 Etiqueta Padrão DolceJu</h1>
-        <p>Sistema Profissional de Gestão Nutricional.</p>
-        <button class="btn-start" onclick="entrar()">Acessar Agora</button>
+    <div class="hero-section">
+        <span style="font-size: 50px;">🍓</span>
+        <h1>DolceJu</h1>
+        <p>A solução definitiva para confeitarias artesanais. Crie etiquetas profissionais em total conformidade com a <b>Nova Lei da ANVISA (RDC 429)</b> em segundos.</p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <span>⚖️</span>
+            <h3>Arredondamento Legal</h3>
+            <p>Esqueça os números quebrados. O sistema arredonda tudo conforme as normas da RDC 429.</p>
+        </div>
+        <div class="feature-card">
+            <span>🔍</span>
+            <h3>Detector de Lupa</h3>
+            <p>Saiba na hora se o seu doce precisa do alerta de "Alto em Açúcar Adicionado" ou "Sódio".</p>
+        </div>
+        <div class="feature-card">
+            <span>🥜</span>
+            <h3>Alergênicos Auto</h3>
+            <p>O sistema detecta ingredientes como Leite e Trigo e escreve o aviso obrigatório para você.</p>
+        </div>
+        <div class="feature-card">
+            <span>📦</span>
+            <h3>Gestão em Lote</h3>
+            <p>Gere dezenas de etiquetas de uma vez em PDF ou JPG para agilizar sua produção.</p>
+        </div>
+    </div>
+
+    <div class="cta-box">
+        <button class="btn-start" onclick="entrar()">Acessar o Assistente de Rotulagem</button>
+        <p style="margin-top:15px; font-size:12px; color:#94a3b8;">Nenhum cartão necessário. Comece a criar agora.</p>
     </div>
 </div>
 
@@ -147,8 +190,8 @@
                 </div>
                 <div id="painel_datas">
                     <div style="display: flex; gap: 8px;">
-                        <div style="flex:1"><label>Validade</label><input id="validade" value="15/05/2026" oninput="atualizar()"></div>
-                        <div style="flex:1"><label>Lote</label><input id="lote" value="2026-01" oninput="atualizar()"></div>
+                        <div style="flex:1"><label>Validade</label><input id="validade" placeholder="DD/MM/AAAA" oninput="atualizar()"></div>
+                        <div style="flex:1"><label>Lote</label><input id="lote" placeholder="001" oninput="atualizar()"></div>
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:15px;">
@@ -173,9 +216,9 @@
             <div id="v_porcao_txt" style="font-size:7px; text-align:center; margin-bottom:2px;"></div>
             <table class="tabela">
                 <tr style="font-weight:bold; background-color: #f2f2f2;"><td>Nutrientes</td><td>100g</td><td>Porção</td><td>%VD*</td></tr>
-                <tr><td>V. Energético (kcal)</td><td id="v100_kcal"></td><td id="vp_kcal"></td><td id="vd_kcal"></td></tr>
+                <tr><td>Valor energético (kcal)</td><td id="v100_kcal"></td><td id="vp_kcal"></td><td id="vd_kcal"></td></tr>
                 <tr><td>Carboidratos (g)</td><td id="v100_carbo"></td><td id="vp_carbo"></td><td id="vd_carbo"></td></tr>
-                <tr><td>Açúcares adic. (g)</td><td id="v100_acucar"></td><td id="vp_acucar"></td><td id="vd_acucar"></td></tr>
+                <tr><td>Açúcares adicionados (g)</td><td id="v100_acucar"></td><td id="vp_acucar"></td><td id="vd_acucar"></td></tr>
                 <tr><td>Proteínas (g)</td><td id="v100_prot"></td><td id="vp_prot"></td><td id="vd_prot"></td></tr>
                 <tr><td>Gorduras totais (g)</td><td id="v100_gord"></td><td id="vp_gord"></td><td id="vd_gord"></td></tr>
                 <tr><td>Sódio (mg)</td><td id="v100_sodio"></td><td id="vp_sodio"></td><td id="vd_sodio"></td></tr>
@@ -225,12 +268,8 @@ const DB_PADRAO = {
     "acucar_confeiteiro": { nome: "Açúcar de Confeiteiro", kcal: 389, prot: 0, gord: 0, acucar: 100, sodio: 2, fibra: 0 },
     "farinha_trigo": { nome: "Farinha de Trigo", kcal: 360, prot: 10, gord: 1.4, acucar: 0, sodio: 2, fibra: 3 },
     "farinha_amendoas": { nome: "Farinha de Amêndoas", kcal: 579, prot: 21, gord: 50, acucar: 4, sodio: 1, fibra: 10 },
-    "amido_milho": { nome: "Amido de Milho", kcal: 361, prot: 0.3, gord: 0.1, acucar: 0, sodio: 9, fibra: 0 },
-    "ovo_inteiro": { nome: "Ovo Inteiro", kcal: 143, prot: 12, gord: 9.5, acucar: 0, sodio: 124, fibra: 0 },
-    "pistache": { nome: "Pistache Sem Sal", kcal: 560, prot: 20, gord: 45, acucar: 7, sodio: 1, fibra: 10 },
-    "pasta_pistache": { nome: "Pasta de Pistache Pure", kcal: 620, prot: 18, gord: 52, acucar: 15, sodio: 5, fibra: 8 },
-    "amendoim_torrado": { nome: "Amendoim Torrado", kcal: 567, prot: 26, gord: 49, acucar: 4, sodio: 18, fibra: 8 },
     "coco_ralado_seco": { nome: "Coco Ralado s/ Açúcar", kcal: 660, prot: 6.9, gord: 65, acucar: 7, sodio: 37, fibra: 16 },
+    "pistache": { nome: "Pistache Sem Sal", kcal: 560, prot: 20, gord: 45, acucar: 7, sodio: 1, fibra: 10 },
     "sal_refinado": { nome: "Sal Refinado", kcal: 0, prot: 0, gord: 0, acucar: 0, sodio: 38758, fibra: 0 }
 };
 
@@ -293,7 +332,6 @@ function atualizar() {
     const f100 = 100 / rend; const fP = porcao / rend;
     const vds = { kcal: 2000, carbo: 300, acucar: 50, prot: 75, gord: 55, sodio: 2000 };
 
-    // FUNÇÃO DE ARREDONDAMENTO ANVISA
     const rd = (v, dec) => dec === 0 ? Math.round(v) : v.toFixed(dec).replace('.',',');
 
     ['kcal', 'carbo', 'acucar', 'prot', 'gord', 'sodio'].forEach(c => {
@@ -352,7 +390,7 @@ async function exportarLotePDF() {
     const pdf = new jsPDF({ unit: "cm", format: [5, 10] });
     for (let i = 0; i < keys.length; i++) {
         carregarReceita(keys[i]);
-        await new Promise(r => setTimeout(r, 400));
+        await new Promise(r => setTimeout(r, 450));
         const c = await html2canvas(document.getElementById('etiqueta'), { scale: 4 });
         const w = parseFloat(document.getElementById('largura').value);
         const h = parseFloat(document.getElementById('altura').value);
@@ -368,7 +406,7 @@ async function exportarLoteJPG() {
     if (keys.length === 0) return alert("Sem receitas.");
     for (let i = 0; i < keys.length; i++) {
         carregarReceita(keys[i]);
-        await new Promise(r => setTimeout(r, 400));
+        await new Promise(r => setTimeout(r, 450));
         const c = await html2canvas(document.getElementById('etiqueta'), { scale: 4 });
         const imgData = c.toDataURL("image/jpeg", 0.9).split(',')[1];
         zip.file(`${keys[i].replace(/\s/g, '_')}.jpg`, imgData, {base64: true});

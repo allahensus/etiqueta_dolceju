@@ -7,15 +7,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        :root { --primary: #db2777; --bg: #fdf2f8; --border: #f9a8d4; --shadow: rgba(219, 39, 119, 0.15); }
+        :root { --primary: #db2777; --bg: #fdf2f8; --border: #f9a8d4; --shadow: rgba(219, 39, 119, 0.15); --success: #10b981; }
         body{ font-family: 'Inter', sans-serif; background: var(--bg); margin:0; padding:0; color: #334155; }
-        
         #landing-page { position: fixed; top:0; left:0; width: 100%; height: 100%; background: radial-gradient(circle at center, #fff, var(--bg)); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.6s ease; }
         .hero-card { text-align: center; padding: 40px; background: #fff; border-radius: 30px; box-shadow: 0 20px 50px rgba(219, 39, 119, 0.2); border: 2px solid var(--border); max-width: 500px; }
         .btn-start { background: var(--primary); color: #fff; border: none; padding: 15px 40px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.3s; }
-
         .app { display:grid; grid-template-columns: 420px 1fr; gap:30px; max-width:1400px; margin:auto; padding: 20px; display: none; }
-        
         .panel { background:#fff; border-radius:15px; box-shadow:0 4px 15px var(--shadow); margin-bottom: 15px; border: 1px solid var(--border); overflow: hidden; transition: all 0.3s ease; }
         .panel-header { background: #fff; padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bg); }
         .panel-header:hover { background: #fff1f2; }
@@ -24,32 +21,23 @@
         .collapsed .panel-content { display: none; }
         .toggle-icon { font-size: 12px; transition: transform 0.3s; color: var(--primary); }
         .collapsed .toggle-icon { transform: rotate(-90deg); }
-
         label { font-size:10px; font-weight: 700; margin-top: 10px; display: block; color: #64748b; text-transform: uppercase; }
         input, select { width:100%; padding:8px; font-size:13px; border:1px solid var(--border); border-radius:8px; box-sizing: border-box; margin-top: 4px; outline: none; }
-        
         .grid-new-item { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #fff1f2; padding: 15px; border-radius: 12px; margin-top: 10px; }
         .full-width { grid-column: span 3; }
         .btn-save-item { grid-column: span 3; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        
         .ingrediente-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
         .btn-add { background: #be185d; color: #fff; width: 100%; margin: 15px 0; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
-
         .preview { position: sticky; top: 20px; display: flex; justify-content: center; background: #fff; border-radius: 20px; padding: 20px; border: 2px dashed var(--border); overflow: auto; min-height: 500px; }
-        
         #etiqueta { background: #fff; border: 1px solid #000; padding: 8px; box-sizing: border-box; font-family: Arial, sans-serif; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.15); transition: all 0.2s ease; position: relative; overflow: hidden; line-height: 1.1; }
-        
         .tabela { border: 1.2px solid #000; width: 100%; border-collapse: collapse; font-size: 7px; margin-top: 4px; }
         .tabela td { border: 1px solid #000; padding: 2.5px 3px; text-align: right; }
         .tabela td:first-child { text-align: left; font-weight: bold; width: 45%; }
-        
         .ingredientes-container { flex-grow: 1; font-size: 7px; margin-top: 6px; text-align: justify; display: flex; flex-direction: column; }
         .footer-etiqueta { margin-top: auto; padding-bottom: 2px; }
-
         .check-group { display: flex; align-items: center; gap: 10px; margin: 15px 0; font-size: 11px; font-weight: bold; color: #475569; }
-        .btn-action-green { background: #10b981; color: white; width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-action-green { background: #10b981; color: white; width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         .recipe-tag { display:flex; justify-content:space-between; background:#f1f5f9; padding:8px; margin-bottom:5px; border-radius:5px; cursor:pointer; font-size: 12px; }
-        
         .oculto { display: none !important; }
         @media print { .sidebar, .panel, #landing-page { display: none; } .app { display: block; } .preview { border: none; padding: 0; } #etiqueta { box-shadow: none; border: 1px solid #000; position: absolute; top: 0; left: 0; } }
     </style>
@@ -76,13 +64,15 @@
                 <label>Sua Marca</label>
                 <input id="empresa_nome" value="DOLCEJU" oninput="atualizar()">
                 <label>CNPJ / CPF</label>
-                <input id="empresa_cnpj" placeholder="00.000.000/0001-00" oninput="atualizar()">
+                <input id="empresa_cnpj" placeholder="00.000.000/0001-00" oninput="formatarCNPJ(this); atualizar()">
                 <label>Endereço (Opcional)</label>
                 <input id="empresa_endereco" placeholder="Rua, Número, Cidade - UF" oninput="atualizar()">
                 <label>Nome do Doce</label>
                 <input id="prod_nome" value="BRIGADEIRO GOURMET" oninput="atualizar()">
                 <label>Modo de Conservação</label>
                 <input id="conservacao" value="Conservar em local seco e fresco." oninput="atualizar()">
+                <label>Pós-Aberto (Ex: Consumir em 3 dias)</label>
+                <input id="pos_aberto" placeholder="Ex: Consumir em 3 dias sob refrigeração" oninput="atualizar()">
             </div>
         </div>
 
@@ -106,7 +96,7 @@
             </div>
             <div class="panel-content">
                 <div id="lista_receitas_salvas" style="max-height: 180px; overflow-y: auto; margin-bottom: 10px;"></div>
-                <button class="btn-action-green" onclick="salvarConfiguracaoAtual()">💾 SALVAR ATUAL</button>
+                <button id="btn-salvar" class="btn-action-green" onclick="salvarConfiguracaoAtual()">💾 SALVAR ATUAL</button>
                 <button class="btn-action-green" style="background: #6366f1;" onclick="exportarLotePDF()">📦 PDF EM LOTE</button>
                 <button class="btn-action-green" style="background: #f59e0b;" onclick="exportarLoteJPG()">🖼️ JPG EM LOTE (ZIP)</button>
                 <div style="display: flex; gap: 8px; margin-top: 10px;">
@@ -162,7 +152,7 @@
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:15px;">
-                    <button onclick="window.print()" style="padding:10px; background:#000; color:#fff; border-radius:8px; cursor:pointer; font-size: 10px;">IMPRIMIR</button>
+                    <button onclick="window.print()" style="padding:10px; background:#000; color:#fff; border-radius:8px; cursor:pointer; font-size: 10px;">PRINT</button>
                     <button onclick="exportPDF()" style="padding:10px; background:#dc2626; color:#fff; border-radius:8px; cursor:pointer; font-size: 10px;">PDF</button>
                     <button onclick="exportJPG()" style="padding:10px; background:#2563eb; color:#fff; border-radius:8px; cursor:pointer; font-size: 10px;">JPG</button>
                 </div>
@@ -175,6 +165,7 @@
             <div style="border-bottom: 1px solid #000; padding-bottom: 2px;">
                 <img id="v_logo" style="max-width:45px; max-height:30px; margin:0 auto 3px auto; display:block; object-fit:contain;" class="oculto">
                 <div id="v_empresa" style="text-align:center; font-size:8px; font-weight:bold; text-transform:uppercase;"></div>
+                <div id="v_peso_liquido" style="text-align:center; font-size:7px; font-weight:bold; margin-top:1px;"></div>
                 <div id="v_cnpj" style="text-align:center; font-size:6px; margin-top:1px;"></div>
             </div>
             <div id="v_nome" style="font-size:11px; font-weight:bold; text-align:center; text-transform:uppercase; margin:4px 0;"></div>
@@ -195,7 +186,8 @@
                 <div id="v_alerta" style="border: 1px solid #000; text-align: center; font-weight: bold; margin-top: 5px; padding: 2px; font-size: 7px; text-transform: uppercase;"></div>
             </div>
             <div class="footer-etiqueta">
-                <div id="v_conservacao" style="font-size:6px; text-align:center; margin-bottom:2px; font-style:italic;"></div>
+                <div id="v_conservacao" style="font-size:6px; text-align:center; margin-bottom:1px; font-style:italic;"></div>
+                <div id="v_pos_aberto" style="font-size:6px; text-align:center; margin-bottom:2px; font-weight:bold;"></div>
                 <div id="v_endereco" style="font-size:5.5px; text-align:center; margin-bottom:4px; color: #555;"></div>
                 <div id="v_datas_box" style="display:flex; justify-content:space-between; font-size:7px; font-weight:bold; border-top:1px dashed #000; padding-top:4px;">
                     <div>VAL: <span id="v_val"></span></div>
@@ -209,23 +201,37 @@
 
 <script>
 function entrar() { document.getElementById('landing-page').style.opacity = '0'; setTimeout(() => { document.getElementById('landing-page').style.display = 'none'; document.getElementById('main-app').style.display = 'grid'; renderizarReceitas(); atualizar(); }, 600); }
-
-function togglePanel(header) {
-    const panel = header.parentElement;
-    panel.classList.toggle('collapsed');
-}
+function togglePanel(header) { header.parentElement.classList.toggle('collapsed'); }
+function formatarCNPJ(i) { let v = i.value.replace(/\D/g, ''); if (v.length > 14) v = v.slice(0, 14); if (v.length > 12) v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5"); else if (v.length > 8) v = v.replace(/^(\d{2})(\d{3})(\d{3})/, "$1.$2.$3/"); i.value = v; }
 
 const DB_PADRAO = {
     "leite_cond_integral": { nome: "Leite Condensado Integral", kcal: 322, prot: 7.2, gord: 8.5, acucar: 54, sodio: 100, fibra: 0 },
     "leite_cond_semi": { nome: "Leite Condensado Semidesnatado", kcal: 297, prot: 6.5, gord: 6, acucar: 55, sodio: 95, fibra: 0 },
     "creme_leite_cx": { nome: "Creme de Leite (Caixa)", kcal: 163, prot: 2.1, gord: 15, acucar: 0, sodio: 50, fibra: 0 },
+    "creme_leite_lata": { nome: "Creme de Leite (Lata)", kcal: 236, prot: 2, gord: 25, acucar: 0, sodio: 45, fibra: 0 },
+    "creme_leite_fresco": { nome: "Creme de Leite Fresco", kcal: 350, prot: 2, gord: 35, acucar: 0, sodio: 40, fibra: 0 },
     "manteiga_sem_sal": { nome: "Manteiga s/ Sal", kcal: 717, prot: 0.8, gord: 81, acucar: 0, sodio: 11, fibra: 0 },
+    "manteiga_com_sal": { nome: "Manteiga c/ Sal", kcal: 717, prot: 0.8, gord: 81, acucar: 0, sodio: 600, fibra: 0 },
     "choc_ao_leite": { nome: "Chocolate ao Leite Nobre", kcal: 540, prot: 5.5, gord: 31, acucar: 50, sodio: 80, fibra: 2 },
     "choc_meio_amargo": { nome: "Chocolate Meio Amargo", kcal: 470, prot: 4, gord: 28, acucar: 40, sodio: 10, fibra: 6 },
+    "choc_amargo_70": { nome: "Chocolate 70% Cacau", kcal: 560, prot: 7, gord: 42, acucar: 28, sodio: 5, fibra: 11 },
+    "choc_branco": { nome: "Chocolate Branco Nobre", kcal: 539, prot: 5.9, gord: 32, acucar: 53, sodio: 78, fibra: 0 },
     "cacau_100": { nome: "Cacau em Pó 100%", kcal: 228, prot: 19, gord: 13, acucar: 0, sodio: 21, fibra: 33 },
     "nutella": { nome: "Nutella (Pasta Avelã)", kcal: 539, prot: 6.3, gord: 31, acucar: 56, sodio: 42, fibra: 3 },
     "doce_leite": { nome: "Doce de Leite Pastoso", kcal: 315, prot: 6, gord: 7.5, acucar: 50, sodio: 120, fibra: 0 },
-    "farinha_trigo": { nome: "Farinha de Trigo", kcal: 360, prot: 10, gord: 1.4, acucar: 0, sodio: 2, fibra: 3 }
+    "leite_ninho": { nome: "Leite em Pó (Ninho)", kcal: 496, prot: 26, gord: 27, acucar: 0, sodio: 370, fibra: 0 },
+    "leite_integral": { nome: "Leite Líquido Integral", kcal: 60, prot: 3.2, gord: 3.2, acucar: 0, sodio: 43, fibra: 0 },
+    "acucar_refinado": { nome: "Açúcar Refinado", kcal: 387, prot: 0, gord: 0, acucar: 100, sodio: 0, fibra: 0 },
+    "acucar_confeiteiro": { nome: "Açúcar de Confeiteiro", kcal: 389, prot: 0, gord: 0, acucar: 100, sodio: 2, fibra: 0 },
+    "farinha_trigo": { nome: "Farinha de Trigo", kcal: 360, prot: 10, gord: 1.4, acucar: 0, sodio: 2, fibra: 3 },
+    "farinha_amendoas": { nome: "Farinha de Amêndoas", kcal: 579, prot: 21, gord: 50, acucar: 4, sodio: 1, fibra: 10 },
+    "amido_milho": { nome: "Amido de Milho", kcal: 361, prot: 0.3, gord: 0.1, acucar: 0, sodio: 9, fibra: 0 },
+    "ovo_inteiro": { nome: "Ovo Inteiro", kcal: 143, prot: 12, gord: 9.5, acucar: 0, sodio: 124, fibra: 0 },
+    "pistache": { nome: "Pistache Sem Sal", kcal: 560, prot: 20, gord: 45, acucar: 7, sodio: 1, fibra: 10 },
+    "pasta_pistache": { nome: "Pasta de Pistache Pure", kcal: 620, prot: 18, gord: 52, acucar: 15, sodio: 5, fibra: 8 },
+    "amendoim_torrado": { nome: "Amendoim Torrado", kcal: 567, prot: 26, gord: 49, acucar: 4, sodio: 18, fibra: 8 },
+    "coco_ralado_seco": { nome: "Coco Ralado s/ Açúcar", kcal: 660, prot: 6.9, gord: 65, acucar: 7, sodio: 37, fibra: 16 },
+    "sal_refinado": { nome: "Sal Refinado", kcal: 0, prot: 0, gord: 0, acucar: 0, sodio: 38758, fibra: 0 }
 };
 
 let DB_CUSTOM = JSON.parse(localStorage.getItem('db_dolceju_v13_custom')) || {};
@@ -238,22 +244,21 @@ function cadastrarInsumo() { const nome = document.getElementById('new_nome').va
 
 function salvarConfiguracaoAtual() { 
     const nomeR = prompt("Nome da etiqueta:"); if (!nomeR) return; 
+    const btn = document.getElementById('btn-salvar');
     const ings = []; document.querySelectorAll('.ingrediente-row').forEach(row => { ings.push({ id: row.querySelector('select').value, peso: row.querySelector('input').value }); }); 
-    RECEITAS[nomeR] = { empresa: document.getElementById('empresa_nome').value, cnpj: document.getElementById('empresa_cnpj').value, endereco: document.getElementById('empresa_endereco').value, produto: document.getElementById('prod_nome').value, conservacao: document.getElementById('conservacao').value, ingredientes: ings, rendimento: document.getElementById('peso_rendimento').value, porcao: document.getElementById('peso_porcao').value, larg: document.getElementById('largura').value, alt: document.getElementById('altura').value, chk_data: document.getElementById('chk_data').checked }; 
-    localStorage.setItem('db_dolceju_v13_receitas', JSON.stringify(RECEITAS)); renderizarReceitas(); 
+    RECEITAS[nomeR] = { empresa: document.getElementById('empresa_nome').value, cnpj: document.getElementById('empresa_cnpj').value, endereco: document.getElementById('empresa_endereco').value, produto: document.getElementById('prod_nome').value, conservacao: document.getElementById('conservacao').value, pos_aberto: document.getElementById('pos_aberto').value, ingredientes: ings, rendimento: document.getElementById('peso_rendimento').value, porcao: document.getElementById('peso_porcao').value, larg: document.getElementById('largura').value, alt: document.getElementById('altura').value, chk_data: document.getElementById('chk_data').checked }; 
+    localStorage.setItem('db_dolceju_v13_receitas', JSON.stringify(RECEITAS)); 
+    renderizarReceitas();
+    btn.innerText = "✅ SALVO COM SUCESSO!"; btn.style.background = "#059669";
+    setTimeout(() => { btn.innerText = "💾 SALVAR ATUAL"; btn.style.background = "#10b981"; }, 2000);
 }
 
 function carregarReceita(n) { 
-    const r = RECEITAS[n]; 
-    document.getElementById('empresa_nome').value = r.empresa; 
-    document.getElementById('empresa_cnpj').value = r.cnpj || ""; 
-    document.getElementById('empresa_endereco').value = r.endereco || ""; 
-    document.getElementById('prod_nome').value = r.produto; 
-    document.getElementById('conservacao').value = r.conservacao || ""; 
-    document.getElementById('peso_rendimento').value = r.rendimento; 
-    document.getElementById('peso_porcao').value = r.porcao; 
-    document.getElementById('largura').value = r.larg || 5; 
-    document.getElementById('altura').value = r.alt || 10; 
+    const r = RECEITAS[n]; document.getElementById('empresa_nome').value = r.empresa; document.getElementById('empresa_cnpj').value = r.cnpj || ""; 
+    document.getElementById('empresa_endereco').value = r.endereco || ""; document.getElementById('prod_nome').value = r.produto; 
+    document.getElementById('conservacao').value = r.conservacao || ""; document.getElementById('pos_aberto').value = r.pos_aberto || "";
+    document.getElementById('peso_rendimento').value = r.rendimento; document.getElementById('peso_porcao').value = r.porcao; 
+    document.getElementById('largura').value = r.larg || 5; document.getElementById('altura').value = r.alt || 10; 
     document.getElementById('chk_data').checked = r.chk_data !== undefined ? r.chk_data : true;
     const container = document.getElementById('lista_ingredientes'); container.innerHTML = ''; 
     r.ingredientes.forEach(ing => { addLinhaIngrediente(); const last = container.lastChild; last.querySelector('select').value = ing.id; last.querySelector('input').value = ing.peso; }); 
@@ -288,10 +293,14 @@ function atualizar() {
     const f100 = 100 / rend; const fP = porcao / rend;
     const vds = { kcal: 2000, carbo: 300, acucar: 50, prot: 75, gord: 55, sodio: 2000 };
 
+    // FUNÇÃO DE ARREDONDAMENTO ANVISA
+    const rd = (v, dec) => dec === 0 ? Math.round(v) : v.toFixed(dec).replace('.',',');
+
     ['kcal', 'carbo', 'acucar', 'prot', 'gord', 'sodio'].forEach(c => {
         const v100 = somas[c] * f100; const vP = somas[c] * fP;
-        document.getElementById(`v100_${c}`).innerText = v100.toFixed(c === 'sodio' || c === 'kcal' ? 0 : 1);
-        document.getElementById(`vp_${c}`).innerText = vP.toFixed(c === 'sodio' || c === 'kcal' ? 0 : 1);
+        const dec = (c === 'prot' || c === 'gord') ? 1 : 0;
+        document.getElementById(`v100_${c}`).innerText = rd(v100, dec);
+        document.getElementById(`vp_${c}`).innerText = rd(vP, dec);
         document.getElementById(`vd_${c}`).innerText = Math.round((vP / vds[c]) * 100) + "%";
     });
 
@@ -299,7 +308,7 @@ function atualizar() {
     let encontrados = [];
     ALERGENICOS.forEach(al => { if(nomesIng.some(n => n.includes(al))) encontrados.push(al); });
     document.getElementById('v_ing_lista').innerHTML = itens.map(it => it.nome.toLowerCase()).join(", ");
-    document.getElementById('v_alergicos_anvisa').innerHTML = encontrados.length > 0 ? `<br><strong>ALÉRGICOS: CONTÉM ${encontrados.join(", ")}.</strong>` : "";
+    document.getElementById('v_alergicos_anvisa').innerHTML = encontrados.length > 0 ? `ALÉRGICOS: CONTÉM ${encontrados.join(", ")}.` : "";
 
     let avisos = [];
     if((somas.acucar * f100) >= 15) avisos.push("ALTO EM AÇÚCAR ADICIONADO");
@@ -308,18 +317,18 @@ function atualizar() {
     if(avisos.length > 0) { avisoBox.innerHTML = avisos.join("<br>"); avisoBox.classList.remove('oculto'); } else { avisoBox.classList.add('oculto'); }
 
     document.getElementById('v_empresa').innerText = document.getElementById('empresa_nome').value;
+    document.getElementById('v_peso_liquido').innerText = `PESO LÍQUIDO: ${rend}g`;
     document.getElementById('v_cnpj').innerText = document.getElementById('empresa_cnpj').value;
-    document.getElementById('v_endereco').innerText = document.getElementById('empresa_endereco').value;
     document.getElementById('v_nome').innerText = document.getElementById('prod_nome').value;
     document.getElementById('v_porcao_txt').innerText = `Porção: ${porcao}g`;
     
-    // CORREÇÃO VALIDADE
     const exibirVal = document.getElementById('chk_data').checked;
     document.getElementById('v_datas_box').classList.toggle('oculto', !exibirVal);
     document.getElementById('v_val').innerText = document.getElementById('validade').value;
     document.getElementById('v_lote').innerText = document.getElementById('lote').value;
-
     document.getElementById('v_conservacao').innerText = document.getElementById('conservacao').value;
+    document.getElementById('v_pos_aberto').innerText = document.getElementById('pos_aberto').value;
+    document.getElementById('v_endereco').innerText = document.getElementById('empresa_endereco').value;
 
     const et = document.getElementById('etiqueta');
     et.style.width = (document.getElementById('largura').value || 5) + "cm";
@@ -339,7 +348,7 @@ async function exportPDF() {
 async function exportarLotePDF() {
     const { jsPDF } = window.jspdf;
     const keys = Object.keys(RECEITAS);
-    if (keys.length === 0) return alert("Sem receitas salvas.");
+    if (keys.length === 0) return alert("Sem receitas.");
     const pdf = new jsPDF({ unit: "cm", format: [5, 10] });
     for (let i = 0; i < keys.length; i++) {
         carregarReceita(keys[i]);
@@ -356,7 +365,7 @@ async function exportarLotePDF() {
 async function exportarLoteJPG() {
     const zip = new JSZip();
     const keys = Object.keys(RECEITAS);
-    if (keys.length === 0) return alert("Sem receitas salvas.");
+    if (keys.length === 0) return alert("Sem receitas.");
     for (let i = 0; i < keys.length; i++) {
         carregarReceita(keys[i]);
         await new Promise(r => setTimeout(r, 400));

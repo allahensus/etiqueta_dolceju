@@ -5,6 +5,7 @@
     <title>Etiqueta Padrão DolceJu</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         :root { --primary: #db2777; --bg: #fdf2f8; --border: #f9a8d4; --shadow: rgba(219, 39, 119, 0.15); }
         body{ font-family: 'Inter', sans-serif; background: var(--bg); margin:0; padding:0; color: #334155; }
@@ -16,11 +17,7 @@
         .app { display:grid; grid-template-columns: 420px 1fr; gap:30px; max-width:1400px; margin:auto; padding: 20px; display: none; }
         
         .panel { background:#fff; border-radius:15px; box-shadow:0 4px 15px var(--shadow); margin-bottom: 15px; border: 1px solid var(--border); overflow: hidden; transition: all 0.3s ease; }
-        .panel-header { 
-            background: #fff; padding: 15px 20px; cursor: pointer; 
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--bg);
-        }
+        .panel-header { background: #fff; padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bg); }
         .panel-header:hover { background: #fff1f2; }
         .panel-header h2 { font-size:13px; text-transform:uppercase; margin: 0; color: var(--primary); pointer-events: none; }
         .panel-content { padding: 20px; transition: max-height 0.3s ease-out; }
@@ -40,16 +37,7 @@
 
         .preview { position: sticky; top: 20px; display: flex; justify-content: center; background: #fff; border-radius: 20px; padding: 20px; border: 2px dashed var(--border); overflow: auto; min-height: 500px; }
         
-        #etiqueta { 
-            background: #fff; border: 1px solid #000; padding: 8px; 
-            box-sizing: border-box; font-family: Arial, sans-serif; 
-            display: flex; flex-direction: column; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-            line-height: 1.1;
-        }
+        #etiqueta { background: #fff; border: 1px solid #000; padding: 8px; box-sizing: border-box; font-family: Arial, sans-serif; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.15); transition: all 0.2s ease; position: relative; overflow: hidden; line-height: 1.1; }
         
         .tabela { border: 1.2px solid #000; width: 100%; border-collapse: collapse; font-size: 7px; margin-top: 4px; }
         .tabela td { border: 1px solid #000; padding: 2.5px 3px; text-align: right; }
@@ -63,7 +51,7 @@
         .recipe-tag { display:flex; justify-content:space-between; background:#f1f5f9; padding:8px; margin-bottom:5px; border-radius:5px; cursor:pointer; font-size: 12px; }
         
         .oculto { display: none !important; }
-        @media print { .sidebar, .panel, #landing-page { display: none; } .app { display: block; } .preview { border: none; padding: 0; } #etiqueta { box-shadow: none; border: 1px solid #000; } }
+        @media print { .sidebar, .panel, #landing-page { display: none; } .app { display: block; } .preview { border: none; padding: 0; } #etiqueta { box-shadow: none; border: 1px solid #000; position: absolute; top: 0; left: 0; } }
     </style>
 </head>
 <body>
@@ -119,6 +107,8 @@
             <div class="panel-content">
                 <div id="lista_receitas_salvas" style="max-height: 180px; overflow-y: auto; margin-bottom: 10px;"></div>
                 <button class="btn-action-green" onclick="salvarConfiguracaoAtual()">💾 SALVAR ATUAL</button>
+                <button class="btn-action-green" style="background: #6366f1;" onclick="exportarLotePDF()">📦 PDF EM LOTE</button>
+                <button class="btn-action-green" style="background: #f59e0b;" onclick="exportarLoteJPG()">🖼️ JPG EM LOTE (ZIP)</button>
                 <div style="display: flex; gap: 8px; margin-top: 10px;">
                     <button onclick="exportarBanco()" style="flex:1; font-size:9px; cursor:pointer; padding:5px;">Backup</button>
                     <button onclick="importarBanco()" style="flex:1; font-size:9px; cursor:pointer; padding:5px;">Restaurar</button>
@@ -157,38 +147,22 @@
             <div class="panel-content">
                 <div id="lista_ingredientes"></div>
                 <button class="btn-add" onclick="addLinhaIngrediente()">+ ADICIONAR ITEM</button>
-                
                 <label>Peso Final Pronto (g)</label>
                 <input id="peso_rendimento" type="number" value="1000" oninput="atualizar()">
-                
                 <label>Peso da Porção (g)</label>
                 <input id="peso_porcao" type="number" value="100" oninput="atualizar()">
-
-                <label>Glúten / Lactose</label>
-                <select id="sel_alerta" onchange="atualizar()">
-                    <option value="">Selecione...</option>
-                    <option value="CONTÉM GLÚTEN.">CONTÉM GLÚTEN</option>
-                    <option value="NÃO CONTÉM GLÚTEN.">NÃO CONTÉM GLÚTEN</option>
-                    <option value="CONTÉM LACTOSE.">CONTÉM LACTOSE</option>
-                    <option value="NÃO CONTÉM LACTOSE.">NÃO CONTÉM LACTOSE</option>
-                    <option value="CONTÉM GLÚTEN E LACTOSE.">CONTÉM GLÚTEN E LACTOSE</option>
-                    <option value="NÃO CONTÉM GLÚTEN E NÃO CONTÉM LACTOSE.">SEM GLÚTEN E SEM LACTOSE</option>
-                </select>
-                
                 <div class="check-group">
                     <input type="checkbox" id="chk_data" checked onchange="atualizar()"> 
                     <span>EXIBIR VALIDADE E LOTE</span>
                 </div>
-
                 <div id="painel_datas">
                     <div style="display: flex; gap: 8px;">
                         <div style="flex:1"><label>Validade</label><input id="validade" value="15/05/2026" oninput="atualizar()"></div>
                         <div style="flex:1"><label>Lote</label><input id="lote" value="2026-01" oninput="atualizar()"></div>
                     </div>
                 </div>
-
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:15px;">
-                    <button onclick="window.print()" style="padding:10px; background:#000; color:#fff; border-radius:8px; cursor:pointer; font-size: 10px;">PRINT</button>
+                    <button onclick="window.print()" style="padding:10px; background:#000; color:#fff; border-radius:8px; cursor:pointer; font-size: 10px;">IMPRIMIR</button>
                     <button onclick="exportPDF()" style="padding:10px; background:#dc2626; color:#fff; border-radius:8px; cursor:pointer; font-size: 10px;">PDF</button>
                     <button onclick="exportJPG()" style="padding:10px; background:#2563eb; color:#fff; border-radius:8px; cursor:pointer; font-size: 10px;">JPG</button>
                 </div>
@@ -203,12 +177,9 @@
                 <div id="v_empresa" style="text-align:center; font-size:8px; font-weight:bold; text-transform:uppercase;"></div>
                 <div id="v_cnpj" style="text-align:center; font-size:6px; margin-top:1px;"></div>
             </div>
-            
             <div id="v_nome" style="font-size:11px; font-weight:bold; text-align:center; text-transform:uppercase; margin:4px 0;"></div>
-            
             <div style="text-align:center; font-weight:bold; font-size:8px; border-top:1.2px solid #000; padding-top:2px;">INFORMAÇÃO NUTRICIONAL</div>
             <div id="v_porcao_txt" style="font-size:7px; text-align:center; margin-bottom:2px;"></div>
-            
             <table class="tabela">
                 <tr style="font-weight:bold; background-color: #f2f2f2;"><td>Constituintes</td><td>100g</td><td>Porção</td><td>%VD*</td></tr>
                 <tr><td>V. Energético (kcal)</td><td id="v100_kcal"></td><td id="vp_kcal"></td><td id="vd_kcal"></td></tr>
@@ -218,13 +189,11 @@
                 <tr><td>Gorduras totais (g)</td><td id="v100_gord"></td><td id="vp_gord"></td><td id="vd_gord"></td></tr>
                 <tr><td>Sódio (mg)</td><td id="v100_sodio"></td><td id="vp_sodio"></td><td id="vd_sodio"></td></tr>
             </table>
-
             <div class="ingredientes-container">
                 <div><strong>INGREDIENTES:</strong> <span id="v_ing_lista"></span></div>
                 <div id="v_alergicos_anvisa" style="font-size: 6.5px; margin-top: 3px; line-height: 1.1; font-weight: bold; text-transform: uppercase;"></div>
                 <div id="v_alerta" style="border: 1px solid #000; text-align: center; font-weight: bold; margin-top: 5px; padding: 2px; font-size: 7px; text-transform: uppercase;"></div>
             </div>
-
             <div class="footer-etiqueta">
                 <div id="v_conservacao" style="font-size:6px; text-align:center; margin-bottom:2px; font-style:italic;"></div>
                 <div id="v_endereco" style="font-size:5.5px; text-align:center; margin-bottom:4px; color: #555;"></div>
@@ -250,62 +219,50 @@ const DB_PADRAO = {
     "leite_cond_integral": { nome: "Leite Condensado Integral", kcal: 322, prot: 7.2, gord: 8.5, acucar: 54, sodio: 100, fibra: 0 },
     "leite_cond_semi": { nome: "Leite Condensado Semidesnatado", kcal: 297, prot: 6.5, gord: 6, acucar: 55, sodio: 95, fibra: 0 },
     "creme_leite_cx": { nome: "Creme de Leite (Caixa)", kcal: 163, prot: 2.1, gord: 15, acucar: 0, sodio: 50, fibra: 0 },
-    "creme_leite_lata": { nome: "Creme de Leite (Lata)", kcal: 236, prot: 2, gord: 25, acucar: 0, sodio: 45, fibra: 0 },
-    "creme_leite_fresco": { nome: "Creme de Leite Fresco", kcal: 350, prot: 2, gord: 35, acucar: 0, sodio: 40, fibra: 0 },
     "manteiga_sem_sal": { nome: "Manteiga s/ Sal", kcal: 717, prot: 0.8, gord: 81, acucar: 0, sodio: 11, fibra: 0 },
-    "manteiga_com_sal": { nome: "Manteiga c/ Sal", kcal: 717, prot: 0.8, gord: 81, acucar: 0, sodio: 600, fibra: 0 },
     "choc_ao_leite": { nome: "Chocolate ao Leite Nobre", kcal: 540, prot: 5.5, gord: 31, acucar: 50, sodio: 80, fibra: 2 },
     "choc_meio_amargo": { nome: "Chocolate Meio Amargo", kcal: 470, prot: 4, gord: 28, acucar: 40, sodio: 10, fibra: 6 },
-    "choc_amargo_70": { nome: "Chocolate 70% Cacau", kcal: 560, prot: 7, gord: 42, acucar: 28, sodio: 5, fibra: 11 },
-    "choc_branco": { nome: "Chocolate Branco Nobre", kcal: 539, prot: 5.9, gord: 32, acucar: 53, sodio: 78, fibra: 0 },
     "cacau_100": { nome: "Cacau em Pó 100%", kcal: 228, prot: 19, gord: 13, acucar: 0, sodio: 21, fibra: 33 },
     "nutella": { nome: "Nutella (Pasta Avelã)", kcal: 539, prot: 6.3, gord: 31, acucar: 56, sodio: 42, fibra: 3 },
     "doce_leite": { nome: "Doce de Leite Pastoso", kcal: 315, prot: 6, gord: 7.5, acucar: 50, sodio: 120, fibra: 0 },
-    "leite_ninho": { nome: "Leite em Pó (Ninho)", kcal: 496, prot: 26, gord: 27, acucar: 0, sodio: 370, fibra: 0 },
-    "leite_integral": { nome: "Leite Líquido Integral", kcal: 60, prot: 3.2, gord: 3.2, acucar: 0, sodio: 43, fibra: 0 },
-    "acucar_refinado": { nome: "Açúcar Refinado", kcal: 387, prot: 0, gord: 0, acucar: 100, sodio: 0, fibra: 0 },
-    "farinha_trigo": { nome: "Farinha de Trigo", kcal: 360, prot: 10, gord: 1.4, acucar: 0, sodio: 2, fibra: 3 },
-    "farinha_amendoas": { nome: "Farinha de Amêndoas", kcal: 579, prot: 21, gord: 50, acucar: 4, sodio: 1, fibra: 10 },
-    "ovo_inteiro": { nome: "Ovo Inteiro", kcal: 143, prot: 12, gord: 9.5, acucar: 0, sodio: 124, fibra: 0 },
-    "pistache": { nome: "Pistache Sem Sal", kcal: 560, prot: 20, gord: 45, acucar: 7, sodio: 1, fibra: 10 },
-    "pasta_pistache": { nome: "Pasta de Pistache Pure", kcal: 620, prot: 18, gord: 52, acucar: 15, sodio: 5, fibra: 8 },
-    "amendoim_torrado": { nome: "Amendoim Torrado", kcal: 567, prot: 26, gord: 49, acucar: 4, sodio: 18, fibra: 8 },
-    "coco_ralado_seco": { nome: "Coco Ralado s/ Açúcar", kcal: 660, prot: 6.9, gord: 65, acucar: 7, sodio: 37, fibra: 16 },
-    "sal_refinado": { nome: "Sal Refinado", kcal: 0, prot: 0, gord: 0, acucar: 0, sodio: 38758, fibra: 0 }
+    "farinha_trigo": { nome: "Farinha de Trigo", kcal: 360, prot: 10, gord: 1.4, acucar: 0, sodio: 2, fibra: 3 }
 };
 
-let DB_CUSTOM = JSON.parse(localStorage.getItem('db_dolceju_v9_custom')) || {};
-let RECEITAS = JSON.parse(localStorage.getItem('db_dolceju_v9_receitas')) || {};
+let DB_CUSTOM = JSON.parse(localStorage.getItem('db_dolceju_v13_custom')) || {};
+let RECEITAS = JSON.parse(localStorage.getItem('db_dolceju_v13_receitas')) || {};
 let DB = { ...DB_PADRAO, ...DB_CUSTOM };
 const ALERGENICOS = ["LEITE", "OVO", "TRIGO", "AMENDOIM", "AMÊNDOA", "AVELÃ", "PISTACHE", "SOJA", "CASTANHA", "CENTEIO", "CEVADA"];
 
 function carregarLogo(e) { const reader = new FileReader(); reader.onload = function(){ document.getElementById('v_logo').src = reader.result; document.getElementById('v_logo').classList.remove('oculto'); }; reader.readAsDataURL(e.target.files[0]); }
-function cadastrarInsumo() { const nome = document.getElementById('new_nome').value; if(!nome) return alert("Digite o nome"); const id = "c_" + Date.now(); DB_CUSTOM[id] = { nome: nome, kcal: parseFloat(document.getElementById('new_kcal').value)||0, prot: parseFloat(document.getElementById('new_prot').value)||0, gord: parseFloat(document.getElementById('new_gord').value)||0, acucar: parseFloat(document.getElementById('new_acucar').value)||0, fibra: parseFloat(document.getElementById('new_fibra').value)||0, sodio: parseFloat(document.getElementById('new_sodio').value)||0 }; localStorage.setItem('db_dolceju_v9_custom', JSON.stringify(DB_CUSTOM)); location.reload(); }
+function cadastrarInsumo() { const nome = document.getElementById('new_nome').value; if(!nome) return alert("Digite o nome"); const id = "c_" + Date.now(); DB_CUSTOM[id] = { nome: nome, kcal: parseFloat(document.getElementById('new_kcal').value)||0, prot: parseFloat(document.getElementById('new_prot').value)||0, gord: parseFloat(document.getElementById('new_gord').value)||0, acucar: parseFloat(document.getElementById('new_acucar').value)||0, fibra: parseFloat(document.getElementById('new_fibra').value)||0, sodio: parseFloat(document.getElementById('new_sodio').value)||0 }; localStorage.setItem('db_dolceju_v13_custom', JSON.stringify(DB_CUSTOM)); location.reload(); }
+
 function salvarConfiguracaoAtual() { 
     const nomeR = prompt("Nome da etiqueta:"); if (!nomeR) return; 
     const ings = []; document.querySelectorAll('.ingrediente-row').forEach(row => { ings.push({ id: row.querySelector('select').value, peso: row.querySelector('input').value }); }); 
-    RECEITAS[nomeR] = { 
-        empresa: document.getElementById('empresa_nome').value, cnpj: document.getElementById('empresa_cnpj').value, 
-        endereco: document.getElementById('empresa_endereco').value, produto: document.getElementById('prod_nome').value, 
-        conservacao: document.getElementById('conservacao').value, ingredientes: ings, rendimento: document.getElementById('peso_rendimento').value, 
-        porcao: document.getElementById('peso_porcao').value, alerta: document.getElementById('sel_alerta').value, 
-        larg: document.getElementById('largura').value, alt: document.getElementById('altura').value 
-    }; 
-    localStorage.setItem('db_dolceju_v9_receitas', JSON.stringify(RECEITAS)); renderizarReceitas(); 
+    RECEITAS[nomeR] = { empresa: document.getElementById('empresa_nome').value, cnpj: document.getElementById('empresa_cnpj').value, endereco: document.getElementById('empresa_endereco').value, produto: document.getElementById('prod_nome').value, conservacao: document.getElementById('conservacao').value, ingredientes: ings, rendimento: document.getElementById('peso_rendimento').value, porcao: document.getElementById('peso_porcao').value, larg: document.getElementById('largura').value, alt: document.getElementById('altura').value, chk_data: document.getElementById('chk_data').checked }; 
+    localStorage.setItem('db_dolceju_v13_receitas', JSON.stringify(RECEITAS)); renderizarReceitas(); 
 }
+
 function carregarReceita(n) { 
-    const r = RECEITAS[n]; document.getElementById('empresa_nome').value = r.empresa; document.getElementById('empresa_cnpj').value = r.cnpj || ""; 
-    document.getElementById('empresa_endereco').value = r.endereco || ""; document.getElementById('prod_nome').value = r.produto; 
-    document.getElementById('conservacao').value = r.conservacao || ""; document.getElementById('peso_rendimento').value = r.rendimento; 
-    document.getElementById('peso_porcao').value = r.porcao; document.getElementById('sel_alerta').value = r.alerta; 
-    document.getElementById('largura').value = r.larg; document.getElementById('altura').value = r.alt; 
+    const r = RECEITAS[n]; 
+    document.getElementById('empresa_nome').value = r.empresa; 
+    document.getElementById('empresa_cnpj').value = r.cnpj || ""; 
+    document.getElementById('empresa_endereco').value = r.endereco || ""; 
+    document.getElementById('prod_nome').value = r.produto; 
+    document.getElementById('conservacao').value = r.conservacao || ""; 
+    document.getElementById('peso_rendimento').value = r.rendimento; 
+    document.getElementById('peso_porcao').value = r.porcao; 
+    document.getElementById('largura').value = r.larg || 5; 
+    document.getElementById('altura').value = r.alt || 10; 
+    document.getElementById('chk_data').checked = r.chk_data !== undefined ? r.chk_data : true;
     const container = document.getElementById('lista_ingredientes'); container.innerHTML = ''; 
     r.ingredientes.forEach(ing => { addLinhaIngrediente(); const last = container.lastChild; last.querySelector('select').value = ing.id; last.querySelector('input').value = ing.peso; }); 
     atualizar(); 
 }
-function renderizarReceitas() { const div = document.getElementById('lista_receitas_salvas'); div.innerHTML = ''; Object.keys(RECEITAS).forEach(n => { div.innerHTML += `<div class="recipe-tag" onclick="carregarReceita('${n}')"><span>${n}</span> <span onclick="event.stopPropagation(); delete RECEITAS['${n}']; localStorage.setItem('db_dolceju_v9_receitas', JSON.stringify(RECEITAS)); renderizarReceitas();" style="color:red;">✕</span></div>`; }); }
+
+function renderizarReceitas() { const div = document.getElementById('lista_receitas_salvas'); div.innerHTML = ''; Object.keys(RECEITAS).forEach(n => { div.innerHTML += `<div class="recipe-tag" onclick="carregarReceita('${n}')"><span>${n}</span> <span onclick="event.stopPropagation(); delete RECEITAS['${n}']; localStorage.setItem('db_dolceju_v13_receitas', JSON.stringify(RECEITAS)); renderizarReceitas();" style="color:red;">✕</span></div>`; }); }
 function exportarBanco() { const data = JSON.stringify({ custom: DB_CUSTOM, receitas: RECEITAS }); const blob = new Blob([data], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'backup-dolceju.json'; a.click(); }
-function importarBanco() { const input = document.createElement('input'); input.type = 'file'; input.onchange = e => { const file = e.target.files[0]; const reader = new FileReader(); reader.onload = ev => { const d = JSON.parse(ev.target.result); localStorage.setItem('db_dolceju_v9_custom', JSON.stringify(d.custom)); localStorage.setItem('db_dolceju_v9_receitas', JSON.stringify(d.receitas)); location.reload(); }; reader.readAsText(file); }; input.click(); }
+function importarBanco() { const input = document.createElement('input'); input.type = 'file'; input.onchange = e => { const file = e.target.files[0]; const reader = new FileReader(); reader.onload = ev => { const d = JSON.parse(ev.target.result); localStorage.setItem('db_dolceju_v13_custom', JSON.stringify(d.custom)); localStorage.setItem('db_dolceju_v13_receitas', JSON.stringify(d.receitas)); location.reload(); }; reader.readAsText(file); }; input.click(); }
 function addLinhaIngrediente() { const container = document.getElementById('lista_ingredientes'); const div = document.createElement('div'); div.className = 'ingrediente-row'; let opt = '<option value="">Selecione...</option>'; Object.keys(DB).sort((a,b) => DB[a].nome.localeCompare(DB[b].nome)).forEach(k => opt += `<option value="${k}">${DB[k].nome}</option>`); div.innerHTML = `<select onchange="atualizar()">${opt}</select><input type="number" placeholder="g" oninput="atualizar()"><button onclick="this.parentElement.remove(); atualizar();" style="border:none; background:none; cursor:pointer; font-size:18px;">✕</button>`; container.appendChild(div); }
 
 function atualizar() {
@@ -341,10 +298,8 @@ function atualizar() {
     const nomesIng = itens.map(it => it.nome.toUpperCase());
     let encontrados = [];
     ALERGENICOS.forEach(al => { if(nomesIng.some(n => n.includes(al))) encontrados.push(al); });
-    let textoLegal = encontrados.length > 0 ? `ALÉRGICOS: CONTÉM ${encontrados.join(", ")}.` : "";
-    
     document.getElementById('v_ing_lista').innerHTML = itens.map(it => it.nome.toLowerCase()).join(", ");
-    document.getElementById('v_alergicos_anvisa').innerHTML = textoLegal;
+    document.getElementById('v_alergicos_anvisa').innerHTML = encontrados.length > 0 ? `<br><strong>ALÉRGICOS: CONTÉM ${encontrados.join(", ")}.</strong>` : "";
 
     let avisos = [];
     if((somas.acucar * f100) >= 15) avisos.push("ALTO EM AÇÚCAR ADICIONADO");
@@ -358,16 +313,11 @@ function atualizar() {
     document.getElementById('v_nome').innerText = document.getElementById('prod_nome').value;
     document.getElementById('v_porcao_txt').innerText = `Porção: ${porcao}g`;
     
-    // CORREÇÃO: VINCULAR OPÇÃO "EXIBIR VALIDADE" AO PREVIEW
-    const exibirValidade = document.getElementById('chk_data').checked;
-    const datasBox = document.getElementById('v_datas_box');
-    if (exibirValidade) {
-        datasBox.classList.remove('oculto');
-        document.getElementById('v_val').innerText = document.getElementById('validade').value;
-        document.getElementById('v_lote').innerText = document.getElementById('lote').value;
-    } else {
-        datasBox.classList.add('oculto');
-    }
+    // CORREÇÃO VALIDADE
+    const exibirVal = document.getElementById('chk_data').checked;
+    document.getElementById('v_datas_box').classList.toggle('oculto', !exibirVal);
+    document.getElementById('v_val').innerText = document.getElementById('validade').value;
+    document.getElementById('v_lote').innerText = document.getElementById('lote').value;
 
     document.getElementById('v_conservacao').innerText = document.getElementById('conservacao').value;
 
@@ -376,8 +326,58 @@ function atualizar() {
     et.style.height = (document.getElementById('altura').value || 10) + "cm";
 }
 
-async function exportJPG() { const et = document.getElementById('etiqueta'); const c = await html2canvas(et, { scale: 4, useCORS: true }); const a = document.createElement("a"); a.href = c.toDataURL("image/jpeg", 0.95); a.download = 'etiqueta.jpg'; a.click(); }
-async function exportPDF() { const { jsPDF } = window.jspdf; const w = parseFloat(document.getElementById('largura').value); const h = parseFloat(document.getElementById('altura').value); const et = document.getElementById('etiqueta'); const c = await html2canvas(et, { scale: 4, useCORS: true }); const pdf = new jsPDF({ unit: "cm", format: [w, h] }); pdf.addImage(c.toDataURL("image/png"), 'PNG', 0, 0, w, h); pdf.save('etiqueta.pdf'); }
+async function exportPDF() { 
+    const { jsPDF } = window.jspdf; 
+    const w = parseFloat(document.getElementById('largura').value); 
+    const h = parseFloat(document.getElementById('altura').value); 
+    const c = await html2canvas(document.getElementById('etiqueta'), { scale: 4, useCORS: true }); 
+    const pdf = new jsPDF({ unit: "cm", format: [w, h] }); 
+    pdf.addImage(c.toDataURL("image/png"), 'PNG', 0, 0, w, h); 
+    pdf.save('etiqueta.pdf'); 
+}
+
+async function exportarLotePDF() {
+    const { jsPDF } = window.jspdf;
+    const keys = Object.keys(RECEITAS);
+    if (keys.length === 0) return alert("Sem receitas salvas.");
+    const pdf = new jsPDF({ unit: "cm", format: [5, 10] });
+    for (let i = 0; i < keys.length; i++) {
+        carregarReceita(keys[i]);
+        await new Promise(r => setTimeout(r, 400));
+        const c = await html2canvas(document.getElementById('etiqueta'), { scale: 4 });
+        const w = parseFloat(document.getElementById('largura').value);
+        const h = parseFloat(document.getElementById('altura').value);
+        if (i > 0) pdf.addPage([w, h]);
+        pdf.addImage(c.toDataURL("image/png"), 'PNG', 0, 0, w, h);
+    }
+    pdf.save('lote-etiquetas.pdf');
+}
+
+async function exportarLoteJPG() {
+    const zip = new JSZip();
+    const keys = Object.keys(RECEITAS);
+    if (keys.length === 0) return alert("Sem receitas salvas.");
+    for (let i = 0; i < keys.length; i++) {
+        carregarReceita(keys[i]);
+        await new Promise(r => setTimeout(r, 400));
+        const c = await html2canvas(document.getElementById('etiqueta'), { scale: 4 });
+        const imgData = c.toDataURL("image/jpeg", 0.9).split(',')[1];
+        zip.file(`${keys[i].replace(/\s/g, '_')}.jpg`, imgData, {base64: true});
+    }
+    zip.generateAsync({type:"blob"}).then(function(content) {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(content);
+        a.download = "lote_imagens.zip";
+        a.click();
+    });
+}
+
+async function exportJPG() { 
+    const c = await html2canvas(document.getElementById('etiqueta'), { scale: 4, useCORS: true }); 
+    const a = document.createElement("a"); 
+    a.href = c.toDataURL("image/jpeg", 0.95); 
+    a.download = 'etiqueta.jpg'; a.click(); 
+}
 window.onload = () => { addLinhaIngrediente(); renderizarReceitas(); };
 </script>
 </body>
